@@ -13,15 +13,21 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        heading: ['Poppins', 'system-ui', 'sans-serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
+        "background-subtle": "hsl(var(--background-subtle))",
         foreground: "hsl(var(--foreground))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+          glow: "hsl(var(--primary-glow))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -38,6 +44,7 @@ export default {
         accent: {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
+          glow: "hsl(var(--accent-glow))",
         },
         popover: {
           DEFAULT: "hsl(var(--popover))",
@@ -46,6 +53,7 @@ export default {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+          border: "hsl(var(--card-border))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
@@ -60,30 +68,71 @@ export default {
       },
       borderRadius: {
         lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        md: "calc(var(--radius) - 4px)",
+        sm: "calc(var(--radius) - 8px)",
+        xl: "var(--radius-lg)",
+        pill: "var(--radius-pill)",
+      },
+      boxShadow: {
+        'sm': 'var(--shadow-sm)',
+        'md': 'var(--shadow-md)',
+        'lg': 'var(--shadow-lg)',
+        'glow': 'var(--shadow-glow)',
+        'gold': 'var(--shadow-gold)',
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0", opacity: "0" },
+          to: { height: "var(--radix-accordion-content-height)", opacity: "1" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)", opacity: "1" },
+          to: { height: "0", opacity: "0" },
+        },
+        "fade-in": {
+          from: { opacity: "0", transform: "translateY(10px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        "fade-out": {
+          from: { opacity: "1", transform: "translateY(0)" },
+          to: { opacity: "0", transform: "translateY(10px)" },
+        },
+        "scale-in": {
+          from: { transform: "scale(0.95)", opacity: "0" },
+          to: { transform: "scale(1)", opacity: "1" },
+        },
+        "slide-in-right": {
+          from: { transform: "translateX(100%)" },
+          to: { transform: "translateX(0)" },
+        },
+        "slide-up": {
+          from: { transform: "translateY(100%)", opacity: "0" },
+          to: { transform: "translateY(0)", opacity: "1" },
+        },
+        "shimmer": {
+          from: { backgroundPosition: "200% 0" },
+          to: { backgroundPosition: "-200% 0" },
+        },
+        "pulse-soft": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.7" },
+        },
+        "bounce-soft": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-5px)" },
         },
       },
       animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
+        "accordion-down": "accordion-down 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
+        "accordion-up": "accordion-up 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
+        "fade-in": "fade-in 0.45s cubic-bezier(0.16, 1, 0.3, 1)",
+        "fade-out": "fade-out 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
+        "scale-in": "scale-in 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
+        "slide-in-right": "slide-in-right 0.45s cubic-bezier(0.16, 1, 0.3, 1)",
+        "slide-up": "slide-up 0.45s cubic-bezier(0.16, 1, 0.3, 1)",
+        "shimmer": "shimmer 3s ease-in-out infinite",
+        "pulse-soft": "pulse-soft 2s ease-in-out infinite",
+        "bounce-soft": "bounce-soft 2s ease-in-out infinite",
       },
     },
   },
