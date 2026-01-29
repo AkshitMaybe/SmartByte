@@ -31,6 +31,7 @@ export const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const location = useLocation();
+  const baseUrl = import.meta.env.BASE_URL;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -73,13 +74,13 @@ export const Header = () => {
             >
               <div className="sm:hidden h-14 w-14 rounded-full bg-white shadow-md ring-1 ring-border/40 flex items-center justify-center overflow-hidden">
                 <img
-                  src="/brand/Short Logo.png"
+                  src={`${baseUrl}brand/Short Logo.png`}
                   alt={site.name}
                   className="h-12 w-12 object-contain"
                 />
               </div>
               <img
-                src="/brand/Logo Rounded Corner.png"
+                src={`${baseUrl}brand/Logo Rounded Corner.png`}
                 alt={site.name}
                 className="h-12 md:h-14 lg:h-16 w-auto object-contain hidden sm:block"
               />

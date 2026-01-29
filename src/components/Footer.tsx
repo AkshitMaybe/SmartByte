@@ -7,6 +7,7 @@ import { courses } from '@/data/courses';
 import { fadeUp, staggerChildren, staggerItem } from '@/lib/motion';
 
 export const Footer = () => {
+  const baseUrl = import.meta.env.BASE_URL;
   const handleWhatsAppClick = () => {
     const message = encodeURIComponent("Hi SmartByte, I want to learn more about your courses.");
     window.open(`https://wa.me/${site.whatsappHO.replace('+', '')}?text=${message}`, '_blank');
@@ -26,7 +27,7 @@ export const Footer = () => {
           <motion.div variants={staggerItem}>
             <Link to="/" className="flex items-center mb-6">
               <img
-                src="/brand/smartbyte-logo.png"
+                src={`${baseUrl}brand/Logo Rounded Corner.png`}
                 alt={site.name}
                 className="h-10 w-auto object-contain"
               />
