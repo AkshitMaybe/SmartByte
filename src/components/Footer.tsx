@@ -24,14 +24,12 @@ export const Footer = () => {
         >
           {/* Brand Column */}
           <motion.div variants={staggerItem}>
-            <Link to="/" className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center">
-                <span className="text-2xl font-bold text-primary-foreground">S</span>
-              </div>
-              <div>
-                <span className="font-heading font-bold text-xl text-foreground">SmartByte</span>
-                <p className="text-sm text-muted-foreground">Computer Education</p>
-              </div>
+            <Link to="/" className="flex items-center mb-6">
+              <img
+                src="/brand/smartbyte-logo.png"
+                alt={site.name}
+                className="h-10 w-auto object-contain"
+              />
             </Link>
             <p className="text-muted-foreground mb-6 leading-relaxed">
               {site.tagline}. Quality computer education since 2005.

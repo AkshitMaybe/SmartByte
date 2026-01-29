@@ -9,7 +9,7 @@ export const site = {
     since: "Since 2005",
     students: "45,000+",
     studentsLabel: "Students Trained",
-    branches: "20",
+    branches: "19",
     branchesLabel: "Branches",
   },
   

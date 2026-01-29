@@ -1,5 +1,7 @@
-import { motion } from 'framer-motion';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { motion, useInView } from 'framer-motion';
 import { LucideIcon } from 'lucide-react';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { cn } from '@/lib/utils';
 
 interface StatCardProps {
@@ -11,8 +13,54 @@ interface StatCardProps {
 }
 
 export const StatCard = ({ icon: Icon, value, label, index = 0, variant = 'default' }: StatCardProps) => {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(cardRef, { once: true, amount: 0.6 });
+  const reducedMotion = useReducedMotion();
+
+  const { target, suffix, useGrouping } = useMemo(() => {
+    const trimmed = value.trim();
+    const numeric = Number(trimmed.replace(/[^0-9]/g, ''));
+    return {
+      target: Number.isFinite(numeric) ? numeric : 0,
+      suffix: trimmed.endsWith('+') ? '+' : '',
+      useGrouping: trimmed.includes(','),
+    };
+  }, [value]);
+
+  const [count, setCount] = useState(reducedMotion ? target : 0);
+
+  useEffect(() => {
+    if (reducedMotion) {
+      setCount(target);
+    }
+  }, [reducedMotion, target]);
+
+  useEffect(() => {
+    if (!isInView || reducedMotion) return;
+    let rafId = 0;
+    const duration = 1200;
+    const start = performance.now();
+
+    const step = (now: number) => {
+      const progress = Math.min((now - start) / duration, 1);
+      const next = Math.floor(progress * target);
+      setCount(next);
+      if (progress < 1) {
+        rafId = requestAnimationFrame(step);
+      } else {
+        setCount(target);
+      }
+    };
+
+    rafId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(rafId);
+  }, [isInView, reducedMotion, target]);
+
+  const formattedValue = useGrouping ? count.toLocaleString('en-US') : String(count);
+
   return (
     <motion.div
+      ref={cardRef}
       className={cn(
         'glass-card p-6 text-center',
         variant === 'accent' && 'border-accent/30 bg-accent/5'
@@ -50,7 +98,8 @@ export const StatCard = ({ icon: Icon, value, label, index = 0, variant = 'defau
         viewport={{ once: true }}
         transition={{ duration: 0.5, delay: index * 0.1 + 0.3 }}
       >
-        {value}
+        {formattedValue}
+        {suffix}
       </motion.p>
       <p className="text-muted-foreground text-sm">{label}</p>
     </motion.div>

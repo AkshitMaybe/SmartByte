@@ -32,7 +32,7 @@ const About = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
             <StatCard icon={Calendar} value="2005" label="Established" index={0} />
             <StatCard icon={Users} value="45,000+" label="Students Trained" index={1} variant="accent" />
-            <StatCard icon={MapPin} value="20" label="Branches" index={2} />
+            <StatCard icon={MapPin} value={site.trust.branches} label="Branches" index={2} />
             <StatCard icon={Award} value="5+" label="Courses" index={3} />
           </div>
 
@@ -40,7 +40,7 @@ const About = () => {
             <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
               <h2 className="text-3xl font-heading font-bold mb-4">Our Story</h2>
               <p className="text-muted-foreground mb-4">
-                What started as a single computer training center in Kalyan has grown into a network of 20 branches 
+                What started as a single computer training center in Kalyan has grown into a network of 19 branches 
                 across the Mumbai Metropolitan Region. Our founder's vision was clear: bridge the digital divide 
                 and empower individuals with practical computer skills.
               </p>

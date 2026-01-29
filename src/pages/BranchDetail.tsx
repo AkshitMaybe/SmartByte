@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { MapPin, Clock, Phone, Navigation, ArrowLeft } from 'lucide-react';
 import { Container, Section } from '@/components/Container';
+import { Marquee } from '@/components/Marquee';
 import { Button } from '@/components/ui/button';
 import { WhatsAppForm } from '@/components/WhatsAppForm';
 import { pageTransition } from '@/lib/motion';
@@ -22,6 +23,12 @@ const BranchDetail = () => {
     const message = encodeURIComponent(`Hi, I want to visit ${branch.displayName}. Please share details.`);
     window.open(`https://wa.me/${number.replace(/[^0-9]/g, '')}?text=${message}`, '_blank');
   };
+
+  const photoPlaceholders = Array.from({ length: 6 }, (_, index) => ({
+    src: "/placeholder.svg",
+    alt: `Branch photo placeholder ${index + 1}`,
+    label: `Branch Photo ${index + 1}`,
+  }));
 
   return (
     <motion.div {...pageTransition}>
@@ -71,6 +78,28 @@ const BranchDetail = () => {
                 ) : (
                   <Button variant="outline" disabled>Maps Coming Soon</Button>
                 )}
+              </div>
+
+              <div className="mt-10">
+                <h2 className="text-lg font-heading font-semibold mb-4">Branch Photos</h2>
+                <Marquee className="py-2" pauseOnHover>
+                  {photoPlaceholders.map((photo) => (
+                    <div
+                      key={photo.alt}
+                      className="relative h-40 w-64 shrink-0 overflow-hidden rounded-2xl border border-card-border bg-card/60 shadow-md"
+                    >
+                      <img
+                        src={photo.src}
+                        alt={photo.alt}
+                        className="h-full w-full object-cover opacity-75"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-br from-background/10 via-transparent to-background/40" />
+                      <span className="absolute bottom-3 left-3 text-xs text-muted-foreground">
+                        {photo.label}
+                      </span>
+                    </div>
+                  ))}
+                </Marquee>
               </div>
             </motion.div>
 

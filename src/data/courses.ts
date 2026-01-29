@@ -77,6 +77,42 @@ export const courses: Course[] = [
       {
         question: "Will I get a certificate?",
         answer: "Yes, upon successful completion, you'll receive a NIELIT-recognized CCC certificate valid across India."
+      },
+      {
+        question: "Who can apply for the CCC course?",
+        answer: "Anyone can apply for the CCC course. There is no minimum educational qualification required."
+      },
+      {
+        question: "Is there any age limit for the CCC course?",
+        answer: "No, there is no age limit to enroll or appear for the CCC examination."
+      },
+      {
+        question: "What is the duration of the CCC course?",
+        answer: "The CCC course duration is approximately 80-90 hours."
+      },
+      {
+        question: "What is the passing mark for the CCC exam?",
+        answer: "Candidates must score 50% or more to pass the CCC examination."
+      },
+      {
+        question: "Is there negative marking in the CCC exam?",
+        answer: "No, there is no negative marking in the CCC exam."
+      },
+      {
+        question: "In which language is the CCC exam conducted?",
+        answer: "The CCC exam is conducted in English and Marathi."
+      },
+      {
+        question: "How many times can I attempt the CCC exam?",
+        answer: "There is no limit on the number of attempts for the CCC exam."
+      },
+      {
+        question: "Is the CCC certificate valid for a lifetime?",
+        answer: "Yes, the CCC certificate has lifetime validity."
+      },
+      {
+        question: "Who conducts the CCC exam?",
+        answer: "The CCC examination is conducted by NIELIT (National Institute of Electronics & Information Technology)."
       }
     ]
   },
@@ -131,6 +167,18 @@ export const courses: Course[] = [
       {
         question: "Is this course recognized by companies?",
         answer: "Advanced Excel skills are universally valued. We provide a course completion certificate that you can add to your resume."
+      },
+      {
+        question: "What is the duration of the Advanced Excel course?",
+        answer: "The duration is 1 month with focused practice sessions."
+      },
+      {
+        question: "Will I receive a certificate after completion?",
+        answer: "Yes, you will receive a SmartByte course completion certificate."
+      },
+      {
+        question: "What job roles does this course support?",
+        answer: "It is helpful for MIS executive, data analyst, office administration, and accounts roles that require advanced Excel skills."
       }
     ]
   },
@@ -185,6 +233,18 @@ export const courses: Course[] = [
       {
         question: "Will I get hands-on practice?",
         answer: "Yes, each student gets dedicated practice time on computers with Tally Prime installed."
+      },
+      {
+        question: "What is the duration of the Tally Prime with GST course?",
+        answer: "The course duration is 3 months with practical sessions."
+      },
+      {
+        question: "Will I receive a certificate after completion?",
+        answer: "Yes, you will receive a SmartByte course completion certificate."
+      },
+      {
+        question: "What job roles can this course help with?",
+        answer: "It is useful for roles like accounts executive, GST billing assistant, junior accountant, and Tally operator."
       }
     ]
   },
@@ -286,6 +346,18 @@ export const courses: Course[] = [
       {
         question: "What certifications can I pursue after this?",
         answer: "This program prepares you for CEH (Certified Ethical Hacker), CompTIA Security+, and other industry certifications."
+      },
+      {
+        question: "How long does the full program take?",
+        answer: "The full program typically takes 1 to 1.5 years depending on the levels you complete."
+      },
+      {
+        question: "Will I get a certificate after each level?",
+        answer: "Yes, you receive a SmartByte completion certificate for each level you finish."
+      },
+      {
+        question: "What job roles can this program prepare me for?",
+        answer: "Depending on the level, it prepares you for roles like SOC analyst, security analyst, junior penetration tester, and vulnerability assessment roles."
       }
     ]
   },
@@ -342,6 +414,18 @@ export const courses: Course[] = [
       {
         question: "Will I build real projects?",
         answer: "Yes, you'll build multiple mini-projects throughout the course and a final project to showcase your skills."
+      },
+      {
+        question: "What is the duration of the Python course?",
+        answer: "The duration is 3 months."
+      },
+      {
+        question: "Will I receive a certificate after completion?",
+        answer: "Yes, you receive a completion certificate after the final assessment."
+      },
+      {
+        question: "What job roles can this course help with?",
+        answer: "It provides a foundation for roles like Python developer intern, automation and scripting roles, and entry-level data or web development paths."
       }
     ]
   }

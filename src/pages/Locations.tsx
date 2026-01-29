@@ -6,16 +6,16 @@ import { BranchCard } from '@/components/BranchCard';
 import { Button } from '@/components/ui/button';
 import { pageTransition } from '@/lib/motion';
 import { branches, getCities, getCityCounts, getBranchesByCity } from '@/data/branches';
-import { cn } from '@/lib/utils';
 
 const Locations = () => {
   const cities = getCities();
   const cityCounts = getCityCounts();
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
+  const activeBranches = branches.filter(b => !b.isComingSoon);
 
   const displayedBranches = selectedCity 
     ? getBranchesByCity(selectedCity)
-    : branches.filter(b => !b.isComingSoon);
+    : activeBranches;
 
   return (
     <motion.div {...pageTransition}>
@@ -28,7 +28,7 @@ const Locations = () => {
         <Container>
           <SectionHeading
             title="Our Branches"
-            subtitle="20 locations across Mumbai Metropolitan Region"
+            subtitle={`${activeBranches.length} locations across Mumbai Metropolitan Region`}
             gradient
           />
 
@@ -43,7 +43,7 @@ const Locations = () => {
               onClick={() => setSelectedCity(null)}
               className="rounded-full"
             >
-              All ({branches.filter(b => !b.isComingSoon).length})
+              All ({activeBranches.length})
             </Button>
             {cities.map((city) => (
               <Button

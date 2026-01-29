@@ -91,13 +91,13 @@ const Index = () => {
 
           {/* Floating elements with parallax */}
           <motion.div
-            className="absolute top-20 left-10 hidden lg:block"
+            className="absolute top-20 left-10 hidden lg:block pointer-events-none -z-10"
             style={{ x: parallax.x * 2, y: parallax.y * 2 }}
           >
             <div className="w-16 h-16 rounded-2xl bg-primary/20 backdrop-blur float" />
           </motion.div>
           <motion.div
-            className="absolute bottom-32 right-20 hidden lg:block"
+            className="absolute bottom-32 right-20 hidden lg:block pointer-events-none -z-10"
             style={{ x: parallax.x * -1.5, y: parallax.y * -1.5 }}
           >
             <div className="w-20 h-20 rounded-full bg-accent/20 backdrop-blur float-delayed" />
@@ -149,7 +149,7 @@ const Index = () => {
               { icon: Award, title: "Govt. Authorized", desc: "Recognized training center with certified courses" },
               { icon: Users, title: "Expert Faculty", desc: "Learn from industry professionals with real experience" },
               { icon: Sparkles, title: "Practical Training", desc: "Hands-on learning with real projects and case studies" },
-              { icon: MapPin, title: "20 Branches", desc: "Convenient locations across Mumbai Metropolitan Region" },
+              { icon: MapPin, title: `${site.trust.branches} Branches`, desc: "Convenient locations across Mumbai Metropolitan Region" },
               { icon: GraduationCap, title: "Job Assistance", desc: "Placement support and career guidance" },
               { icon: CheckCircle, title: "Flexible Timings", desc: "Morning to evening batches to suit your schedule" },
             ].map((item, index) => (

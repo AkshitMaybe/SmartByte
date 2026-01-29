@@ -5,6 +5,7 @@ import { Menu, X, ChevronDown, Phone } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { site } from '@/data/site';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 const navItems = [
   { label: 'Home', href: '/' },
@@ -65,21 +66,24 @@ export const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <motion.div 
-              className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center"
-              whileHover={{ scale: 1.05, rotate: 5 }}
+            <motion.div
+              className="flex items-center"
+              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <span className="text-xl font-bold text-primary-foreground">S</span>
+              <div className="sm:hidden h-14 w-14 rounded-full bg-white shadow-md ring-1 ring-border/40 flex items-center justify-center overflow-hidden">
+                <img
+                  src="/brand/Short Logo.png"
+                  alt={site.name}
+                  className="h-12 w-12 object-contain"
+                />
+              </div>
+              <img
+                src="/brand/Logo Rounded Corner.png"
+                alt={site.name}
+                className="h-12 md:h-14 lg:h-16 w-auto object-contain hidden sm:block"
+              />
             </motion.div>
-            <div className="hidden sm:block">
-              <span className="font-heading font-bold text-lg text-foreground group-hover:text-primary transition-colors">
-                SmartByte
-              </span>
-              <span className="hidden lg:block text-xs text-muted-foreground">
-                Computer Education
-              </span>
-            </div>
           </Link>
 
           {/* Desktop Nav */}
@@ -132,6 +136,7 @@ export const Header = () => {
 
           {/* CTA Buttons */}
           <div className="flex items-center gap-3">
+            <ThemeToggle className="shrink-0" />
             <Button
               variant="ghost"
               size="sm"
