@@ -46,7 +46,7 @@ const ScrollToTop = () => {
 
 const AnimatedRoutes = () => {
   const location = useLocation();
-  
+
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
@@ -74,7 +74,9 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <BrowserRouter>
+
+          {/* IMPORTANT: basename fixes GitHub Pages subpath (/SmartByte/) */}
+          <BrowserRouter basename={import.meta.env.BASE_URL}>
             <ScrollToTop />
             <AnimatedBackground />
             <ScrollProgressBar />
