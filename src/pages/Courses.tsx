@@ -1,10 +1,12 @@
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { Container, Section, SectionHeading } from '@/components/Container';
-import { CourseCard } from '@/components/CourseCard';
-import { WhatsAppForm } from '@/components/WhatsAppForm';
+import { MobileDefer } from '@/components/MobileDefer';
 import { pageTransition } from '@/lib/motion';
-import { courses } from '@/data/courses';
+import { lazy, Suspense } from 'react';
+
+const CoursesGrid = lazy(() => import('@/sections/CoursesGrid'));
+const WhatsAppForm = lazy(() => import('@/components/WhatsAppForm'));
 
 const Courses = () => {
   return (
@@ -22,15 +24,17 @@ const Courses = () => {
             gradient
           />
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-            {courses.map((course, index) => (
-              <CourseCard key={course.slug} course={course} index={index} />
-            ))}
-          </div>
+          <Suspense fallback={<div className="min-h-[520px]" />}>
+            <CoursesGrid />
+          </Suspense>
 
-          <div className="max-w-xl mx-auto">
-            <WhatsAppForm />
-          </div>
+          <MobileDefer minHeight={480}>
+            <div className="max-w-xl mx-auto">
+              <Suspense fallback={<div className="h-[480px]" />}>
+                <WhatsAppForm />
+              </Suspense>
+            </div>
+          </MobileDefer>
         </Container>
       </Section>
     </motion.div>

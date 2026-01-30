@@ -1,24 +1,33 @@
-import { useRef } from 'react';
+import { lazy, Suspense, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { ArrowRight, Award, Users, MapPin, Calendar, GraduationCap, Sparkles, CheckCircle } from 'lucide-react';
 import { Container, Section, SectionHeading } from '@/components/Container';
 import { Button } from '@/components/ui/button';
-import { CourseCard } from '@/components/CourseCard';
 import { StatCard } from '@/components/StatCard';
-import { MarqueeTestimonialCard } from '@/components/TestimonialCard';
-import { Marquee } from '@/components/Marquee';
-import { WhatsAppForm } from '@/components/WhatsAppForm';
 import { useMouseParallax } from '@/hooks/useParallax';
+import { MobileDefer } from '@/components/MobileDefer';
+import { useIsMobileLike } from '@/hooks/useIsMobileLike';
 import { pageTransition, staggerChildren, staggerItem } from '@/lib/motion';
 import { site } from '@/data/site';
-import { courses } from '@/data/courses';
-import { testimonials } from '@/data/testimonials';
+
+const HomeTestimonials = lazy(() => import('@/sections/HomeTestimonials'));
+const WhatsAppForm = lazy(() => import('@/components/WhatsAppForm'));
+const HomeCoursesGrid = lazy(() => import('@/sections/HomeCoursesGrid'));
 
 const Index = () => {
   const heroRef = useRef<HTMLDivElement>(null);
   const parallax = useMouseParallax(heroRef, 0.02);
+  const isMobileLike = useIsMobileLike();
+
+  useEffect(() => {
+    if (!isMobileLike) {
+      void import('@/sections/HomeTestimonials');
+      void import('@/components/WhatsAppForm');
+      void import('@/sections/HomeCoursesGrid');
+    }
+  }, [isMobileLike]);
 
   return (
     <motion.div {...pageTransition}>
@@ -112,11 +121,11 @@ const Index = () => {
             title="Our Popular Courses"
             subtitle="Industry-relevant programs designed to make you job-ready"
           />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {courses.slice(0, 6).map((course, index) => (
-              <CourseCard key={course.slug} course={course} index={index} />
-            ))}
-          </div>
+          <MobileDefer minHeight={520}>
+            <Suspense fallback={<div className="min-h-[520px]" />}>
+              <HomeCoursesGrid />
+            </Suspense>
+          </MobileDefer>
           <motion.div
             className="text-center mt-12"
             initial={{ opacity: 0, y: 20 }}
@@ -170,21 +179,11 @@ const Index = () => {
       </Section>
 
       {/* Testimonials Marquee */}
-      <Section>
-        <Container>
-          <SectionHeading title="What Students Say" subtitle="Join 45,000+ successful learners" />
-        </Container>
-        <Marquee className="py-4">
-          {testimonials.map((t) => (
-            <MarqueeTestimonialCard key={t.id} testimonial={t} />
-          ))}
-        </Marquee>
-        <Container className="text-center mt-8">
-          <Button asChild variant="outline">
-            <Link to="/testimonials">Read All Reviews <ArrowRight className="ml-2 w-4 h-4" /></Link>
-          </Button>
-        </Container>
-      </Section>
+      <MobileDefer minHeight={420}>
+        <Suspense fallback={<div className="py-16 md:py-24" />}>
+          <HomeTestimonials />
+        </Suspense>
+      </MobileDefer>
 
       {/* CTA Section */}
       <Section className="bg-gradient-to-br from-primary/10 via-background to-accent/10">
@@ -208,7 +207,11 @@ const Index = () => {
                 <span className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-primary" /> Certificate</span>
               </div>
             </motion.div>
-            <WhatsAppForm />
+            <MobileDefer minHeight={480}>
+              <Suspense fallback={<div className="h-[480px]" />}>
+                <WhatsAppForm />
+              </Suspense>
+            </MobileDefer>
           </div>
         </Container>
       </Section>

@@ -5,13 +5,18 @@ import { MapPin, Clock, Phone, Navigation, ArrowLeft } from 'lucide-react';
 import { Container, Section } from '@/components/Container';
 import { Marquee } from '@/components/Marquee';
 import { Button } from '@/components/ui/button';
-import { WhatsAppForm } from '@/components/WhatsAppForm';
+import { MobileDefer } from '@/components/MobileDefer';
+import { useIsMobileLike } from '@/hooks/useIsMobileLike';
+import { lazy, Suspense } from 'react';
 import { pageTransition } from '@/lib/motion';
 import { getBranchBySlug } from '@/data/branches';
 import { site } from '@/data/site';
 
+const WhatsAppForm = lazy(() => import('@/components/WhatsAppForm'));
+
 const BranchDetail = () => {
   const { slug } = useParams();
+  const isMobileLike = useIsMobileLike();
   const branch = getBranchBySlug(slug || '');
 
   if (!branch || branch.isComingSoon) {
@@ -82,28 +87,38 @@ const BranchDetail = () => {
 
               <div className="mt-10">
                 <h2 className="text-lg font-heading font-semibold mb-4">Branch Photos</h2>
-                <Marquee className="py-2" pauseOnHover>
-                  {photoPlaceholders.map((photo) => (
-                    <div
-                      key={photo.alt}
-                      className="relative h-40 w-64 shrink-0 overflow-hidden rounded-2xl border border-card-border bg-card/60 shadow-md"
-                    >
-                      <img
-                        src={photo.src}
-                        alt={photo.alt}
-                        className="h-full w-full object-cover opacity-75"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-br from-background/10 via-transparent to-background/40" />
-                      <span className="absolute bottom-3 left-3 text-xs text-muted-foreground">
-                        {photo.label}
-                      </span>
-                    </div>
-                  ))}
-                </Marquee>
+                <MobileDefer minHeight={220}>
+                  <Marquee className="py-2" pauseOnHover>
+                    {photoPlaceholders.map((photo) => (
+                      <div
+                        key={photo.alt}
+                        className="relative h-40 w-64 shrink-0 overflow-hidden rounded-2xl border border-card-border bg-card/60 shadow-md"
+                      >
+                        <img
+                          src={photo.src}
+                          alt={photo.alt}
+                          className="h-full w-full object-cover opacity-75"
+                          loading={isMobileLike ? 'lazy' : 'eager'}
+                          decoding="async"
+                          fetchPriority={isMobileLike ? 'low' : 'auto'}
+                          sizes="(max-width: 640px) 80vw, (max-width: 1024px) 60vw, 320px"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-br from-background/10 via-transparent to-background/40" />
+                        <span className="absolute bottom-3 left-3 text-xs text-muted-foreground">
+                          {photo.label}
+                        </span>
+                      </div>
+                    ))}
+                  </Marquee>
+                </MobileDefer>
               </div>
             </motion.div>
 
-            <WhatsAppForm defaultBranch={branch.slug} />
+            <MobileDefer minHeight={480}>
+              <Suspense fallback={<div className="h-[480px]" />}>
+                <WhatsAppForm defaultBranch={branch.slug} />
+              </Suspense>
+            </MobileDefer>
           </div>
         </Container>
       </Section>

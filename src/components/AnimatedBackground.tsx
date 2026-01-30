@@ -10,7 +10,10 @@ export const AnimatedBackground = () => {
       <div className="absolute inset-0 bg-background" />
       
       {/* Animated mesh gradient */}
-      <div className="absolute inset-0 animated-bg opacity-60" />
+      <div
+        className={`absolute inset-0 ${reducedMotion ? '' : 'animated-bg'} opacity-60`}
+        style={reducedMotion ? { background: 'var(--gradient-mesh)' } : undefined}
+      />
       
       {/* Floating orbs */}
       {!reducedMotion && (
@@ -74,12 +77,14 @@ export const AnimatedBackground = () => {
       )}
       
       {/* Noise overlay */}
-      <div 
-        className="absolute inset-0 opacity-[0.015]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-        }}
-      />
+      {!reducedMotion && (
+        <div 
+          className="absolute inset-0 opacity-[0.015]"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+          }}
+        />
+      )}
     </div>
   );
 };

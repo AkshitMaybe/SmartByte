@@ -4,11 +4,14 @@ import { Navigate, useParams, Link } from 'react-router-dom';
 import { Container, Section, SectionHeading } from '@/components/Container';
 import { Marquee } from '@/components/Marquee';
 import { pageTransition } from '@/lib/motion';
+import { useIsMobileLike } from '@/hooks/useIsMobileLike';
+import { MobileDefer } from '@/components/MobileDefer';
 import { getBranchBySlug } from '@/data/branches';
 import { ArrowLeft } from 'lucide-react';
 
 const BranchGallery = () => {
   const { slug } = useParams();
+  const isMobileLike = useIsMobileLike();
   const branch = getBranchBySlug(slug || '');
 
   if (!branch || branch.isComingSoon) {
@@ -44,21 +47,27 @@ const BranchGallery = () => {
           />
         </Container>
 
-        <Marquee className="mb-12">
-          {photos.slice(0, 6).map((photo) => (
-            <div
-              key={photo.id}
-              className="relative h-44 w-72 shrink-0 overflow-hidden rounded-2xl border border-card-border bg-card/60 shadow-md"
-            >
-              <img
-                src={photo.src}
-                alt={photo.alt}
-                className="h-full w-full object-cover opacity-75"
-              />
-              <div className="absolute inset-0 bg-gradient-to-br from-background/10 via-transparent to-background/40" />
-            </div>
-          ))}
-        </Marquee>
+        <MobileDefer minHeight={260}>
+          <Marquee className="mb-12">
+            {photos.slice(0, 6).map((photo) => (
+              <div
+                key={photo.id}
+                className="relative h-44 w-72 shrink-0 overflow-hidden rounded-2xl border border-card-border bg-card/60 shadow-md"
+              >
+                <img
+                  src={photo.src}
+                  alt={photo.alt}
+                  className="h-full w-full object-cover opacity-75"
+                  loading={isMobileLike ? 'lazy' : 'eager'}
+                  decoding="async"
+                  fetchPriority={isMobileLike ? 'low' : 'auto'}
+                  sizes="(max-width: 640px) 80vw, (max-width: 1024px) 60vw, 320px"
+                />
+                <div className="absolute inset-0 bg-gradient-to-br from-background/10 via-transparent to-background/40" />
+              </div>
+            ))}
+          </Marquee>
+        </MobileDefer>
 
         <Container>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -75,6 +84,10 @@ const BranchGallery = () => {
                   src={photo.src}
                   alt={photo.alt}
                   className="h-full w-full object-cover opacity-75"
+                  loading={isMobileLike ? 'lazy' : 'eager'}
+                  decoding="async"
+                  fetchPriority={isMobileLike ? 'low' : 'auto'}
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 />
                 <div className="absolute inset-0 bg-gradient-to-br from-background/10 via-transparent to-background/40" />
                 <span className="absolute bottom-3 left-3 text-xs text-muted-foreground">

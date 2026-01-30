@@ -2,10 +2,13 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { Container, Section, SectionHeading } from '@/components/Container';
-import { BranchCard } from '@/components/BranchCard';
 import { Button } from '@/components/ui/button';
+import { MobileDefer } from '@/components/MobileDefer';
 import { pageTransition } from '@/lib/motion';
 import { branches, getCities, getCityCounts, getBranchesByCity } from '@/data/branches';
+import { lazy, Suspense } from 'react';
+
+const LocationsGrid = lazy(() => import('@/sections/LocationsGrid'));
 
 const Locations = () => {
   const cities = getCities();
@@ -58,11 +61,11 @@ const Locations = () => {
           </motion.div>
 
           {/* Branch grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {displayedBranches.map((branch, index) => (
-              <BranchCard key={branch.slug} branch={branch} index={index} />
-            ))}
-          </div>
+          <MobileDefer minHeight={640}>
+            <Suspense fallback={<div className="min-h-[640px]" />}>
+              <LocationsGrid branches={displayedBranches} />
+            </Suspense>
+          </MobileDefer>
         </Container>
       </Section>
     </motion.div>

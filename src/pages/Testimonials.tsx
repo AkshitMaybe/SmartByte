@@ -1,10 +1,13 @@
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { Container, Section, SectionHeading } from '@/components/Container';
-import { TestimonialCard, MarqueeTestimonialCard } from '@/components/TestimonialCard';
-import { Marquee } from '@/components/Marquee';
+import { MobileDefer } from '@/components/MobileDefer';
 import { pageTransition } from '@/lib/motion';
 import { testimonials } from '@/data/testimonials';
+import { lazy, Suspense } from 'react';
+
+const TestimonialsMarquee = lazy(() => import('@/sections/TestimonialsMarquee'));
+const TestimonialsGrid = lazy(() => import('@/sections/TestimonialsGrid'));
 
 const Testimonials = () => {
   return (
@@ -23,18 +26,18 @@ const Testimonials = () => {
           />
         </Container>
 
-        <Marquee className="mb-12">
-          {testimonials.slice(0, 6).map((t) => (
-            <MarqueeTestimonialCard key={t.id} testimonial={t} />
-          ))}
-        </Marquee>
+        <MobileDefer minHeight={260}>
+          <Suspense fallback={<div className="min-h-[260px]" />}>
+            <TestimonialsMarquee testimonials={testimonials} />
+          </Suspense>
+        </MobileDefer>
 
         <Container>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {testimonials.map((testimonial, index) => (
-              <TestimonialCard key={testimonial.id} testimonial={testimonial} index={index} />
-            ))}
-          </div>
+          <MobileDefer minHeight={720}>
+            <Suspense fallback={<div className="min-h-[720px]" />}>
+              <TestimonialsGrid testimonials={testimonials} />
+            </Suspense>
+          </MobileDefer>
         </Container>
       </Section>
     </motion.div>

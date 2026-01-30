@@ -1,13 +1,18 @@
 import { useParams, Navigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
-import { Clock, IndianRupee, CheckCircle, Users, ArrowRight, ChevronDown } from 'lucide-react';
-import { Container, Section, SectionHeading } from '@/components/Container';
+import { Clock, IndianRupee, ArrowRight } from 'lucide-react';
+import { Container, Section } from '@/components/Container';
 import { Button } from '@/components/ui/button';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { WhatsAppForm } from '@/components/WhatsAppForm';
+import { MobileDefer } from '@/components/MobileDefer';
 import { pageTransition, staggerChildren, staggerItem } from '@/lib/motion';
 import { getCourseBySlug } from '@/data/courses';
+import { lazy, Suspense } from 'react';
+
+const WhatsAppForm = lazy(() => import('@/components/WhatsAppForm'));
+const CourseDetailSyllabus = lazy(() => import('@/sections/CourseDetailSyllabus'));
+const CourseDetailLevels = lazy(() => import('@/sections/CourseDetailLevels'));
+const CourseDetailFaq = lazy(() => import('@/sections/CourseDetailFaq'));
 
 const CourseDetail = () => {
   const { slug } = useParams();
@@ -63,89 +68,37 @@ const CourseDetail = () => {
               </motion.div>
             </motion.div>
 
-            <WhatsAppForm defaultCourse={course.slug} />
+            <MobileDefer minHeight={480}>
+              <Suspense fallback={<div className="h-[480px]" />}>
+                <WhatsAppForm defaultCourse={course.slug} />
+              </Suspense>
+            </MobileDefer>
           </div>
         </Container>
       </Section>
 
       {/* Syllabus */}
-      <Section className="bg-card/30">
-        <Container>
-          <SectionHeading title="What You'll Learn" align="left" />
-          <motion.div
-            className="grid md:grid-cols-2 gap-4"
-            variants={staggerChildren}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true }}
-          >
-            {course.syllabus.map((item, i) => (
-              <motion.div
-                key={i}
-                variants={staggerItem}
-                className="flex items-start gap-3 p-4 glass-card"
-              >
-                <CheckCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                <span>{item}</span>
-              </motion.div>
-            ))}
-          </motion.div>
-        </Container>
-      </Section>
+      <MobileDefer minHeight={560}>
+        <Suspense fallback={<div className="min-h-[560px] bg-card/30" />}>
+          <CourseDetailSyllabus syllabus={course.syllabus} />
+        </Suspense>
+      </MobileDefer>
 
       {/* Levels for Cybersecurity */}
       {course.levels && (
-        <Section>
-          <Container>
-            <SectionHeading title="Program Levels" subtitle="Progress at your own pace" />
-            <div className="grid md:grid-cols-3 gap-6">
-              {course.levels.map((level, i) => (
-                <motion.div
-                  key={level.level}
-                  className="glass-card p-6"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                >
-                  <div className="text-sm text-primary mb-2">Level {level.level}</div>
-                  <h3 className="text-xl font-heading font-semibold mb-2">{level.name}</h3>
-                  <p className="text-2xl font-bold text-accent mb-1">{level.fees}</p>
-                  {level.upgradeNote && (
-                    <p className="text-sm text-muted-foreground mb-4">{level.upgradeNote}</p>
-                  )}
-                  <ul className="space-y-2 text-sm">
-                    {level.topics.slice(0, 4).map((t, j) => (
-                      <li key={j} className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-primary" /> {t}
-                      </li>
-                    ))}
-                  </ul>
-                </motion.div>
-              ))}
-            </div>
-          </Container>
-        </Section>
+        <MobileDefer minHeight={520}>
+          <Suspense fallback={<div className="min-h-[520px]" />}>
+            <CourseDetailLevels levels={course.levels} />
+          </Suspense>
+        </MobileDefer>
       )}
 
       {/* FAQ */}
-      <Section>
-        <Container size="small">
-          <SectionHeading title="Frequently Asked Questions" />
-          <Accordion type="single" collapsible className="space-y-4">
-            {course.faq.map((item, i) => (
-              <AccordionItem key={i} value={`faq-${i}`} className="glass-card px-6">
-                <AccordionTrigger className="text-left font-medium">
-                  {item.question}
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">
-                  {item.answer}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </Container>
-      </Section>
+      <MobileDefer minHeight={520}>
+        <Suspense fallback={<div className="min-h-[520px]" />}>
+          <CourseDetailFaq faq={course.faq} />
+        </Suspense>
+      </MobileDefer>
     </motion.div>
   );
 };

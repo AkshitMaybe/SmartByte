@@ -30,6 +30,8 @@ export const Footer = () => {
                 src={`${baseUrl}brand/Logo Rounded Corner.png`}
                 alt={site.name}
                 className="h-10 w-auto object-contain"
+                loading="lazy"
+                decoding="async"
               />
             </Link>
             <p className="text-muted-foreground mb-6 leading-relaxed">

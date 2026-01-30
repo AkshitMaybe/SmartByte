@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { Container, Section, SectionHeading } from '@/components/Container';
 import { cardHover, pageTransition } from '@/lib/motion';
 import { cn } from '@/lib/utils';
+import { useIsMobileLike } from '@/hooks/useIsMobileLike';
 import { branches, getBranchesByCity, getCities, getCityCounts } from '@/data/branches';
 
 const tabs = ['Branches', 'Classes', 'Events', 'Certificates'];
@@ -12,6 +13,7 @@ const tabs = ['Branches', 'Classes', 'Events', 'Certificates'];
 const Gallery = () => {
   const [activeTab, setActiveTab] = useState('Branches');
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
+  const isMobileLike = useIsMobileLike();
   const cities = getCities();
   const cityCounts = getCityCounts();
   const branchOptions = selectedCity
@@ -141,6 +143,10 @@ const Gallery = () => {
                             src="/placeholder.svg"
                             alt={`${branch.displayName} thumbnail`}
                             className="h-full w-full object-cover opacity-70"
+                            loading={isMobileLike ? 'lazy' : 'eager'}
+                            decoding="async"
+                            fetchPriority={isMobileLike ? 'low' : 'auto'}
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                           />
                         </div>
                         <div className="mt-4 text-center px-2">
