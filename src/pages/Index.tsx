@@ -13,7 +13,9 @@ import { pageTransition, staggerChildren, staggerItem } from '@/lib/motion';
 import { site } from '@/data/site';
 
 const HomeTestimonials = lazy(() => import('@/sections/HomeTestimonials'));
-const WhatsAppForm = lazy(() => import('@/components/WhatsAppForm'));
+const WhatsAppForm = lazy(() =>
+  import('@/components/WhatsAppForm').then((module) => ({ default: module.WhatsAppForm }))
+);
 const HomeCoursesGrid = lazy(() => import('@/sections/HomeCoursesGrid'));
 
 const Index = () => {

@@ -9,7 +9,9 @@ import { pageTransition, staggerChildren, staggerItem } from '@/lib/motion';
 import { getCourseBySlug } from '@/data/courses';
 import { lazy, Suspense } from 'react';
 
-const WhatsAppForm = lazy(() => import('@/components/WhatsAppForm'));
+const WhatsAppForm = lazy(() =>
+  import('@/components/WhatsAppForm').then((module) => ({ default: module.WhatsAppForm }))
+);
 const CourseDetailSyllabus = lazy(() => import('@/sections/CourseDetailSyllabus'));
 const CourseDetailLevels = lazy(() => import('@/sections/CourseDetailLevels'));
 const CourseDetailFaq = lazy(() => import('@/sections/CourseDetailFaq'));

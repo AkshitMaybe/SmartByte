@@ -4,7 +4,7 @@ import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: "/SmartByte/",
+  base: mode === "production" ? "/SmartByte/" : "/",
 
   server: {
     host: "::",

@@ -6,7 +6,9 @@ import { pageTransition } from '@/lib/motion';
 import { lazy, Suspense } from 'react';
 
 const CoursesGrid = lazy(() => import('@/sections/CoursesGrid'));
-const WhatsAppForm = lazy(() => import('@/components/WhatsAppForm'));
+const WhatsAppForm = lazy(() =>
+  import('@/components/WhatsAppForm').then((module) => ({ default: module.WhatsAppForm }))
+);
 
 const Courses = () => {
   return (

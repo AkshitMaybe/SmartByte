@@ -12,7 +12,9 @@ import { pageTransition } from '@/lib/motion';
 import { getBranchBySlug } from '@/data/branches';
 import { site } from '@/data/site';
 
-const WhatsAppForm = lazy(() => import('@/components/WhatsAppForm'));
+const WhatsAppForm = lazy(() =>
+  import('@/components/WhatsAppForm').then((module) => ({ default: module.WhatsAppForm }))
+);
 
 const BranchDetail = () => {
   const { slug } = useParams();
