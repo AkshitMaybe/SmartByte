@@ -50,9 +50,9 @@ const Gallery = () => {
           />
 
           {/* Tabs / Branch Filters */}
-          <div className="mb-12 space-y-5">
+          <div className="mb-10 sm:mb-12 space-y-4 sm:space-y-5">
             <motion.div
-              className="flex justify-center gap-2"
+              className="flex sm:justify-center gap-2 overflow-x-auto sm:overflow-visible -mx-4 px-4 sm:mx-0 sm:px-0 no-scrollbar"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
@@ -63,7 +63,7 @@ const Gallery = () => {
                     setActiveTab(tab);
                   }}
                   className={cn(
-                    'px-6 py-2 rounded-full text-sm font-medium transition-all',
+                    'px-5 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap',
                     activeTab === tab
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-background/80 text-muted-foreground hover:text-foreground border border-border'
@@ -76,7 +76,7 @@ const Gallery = () => {
 
             {activeTab === 'Branches' && (
               <motion.div
-                className="flex flex-wrap justify-center gap-3"
+                className="flex sm:flex-wrap sm:justify-center gap-2 sm:gap-3 overflow-x-auto sm:overflow-visible -mx-4 px-4 sm:mx-0 sm:px-0 no-scrollbar"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
               >
@@ -84,7 +84,7 @@ const Gallery = () => {
                   type="button"
                   onClick={() => setSelectedCity(null)}
                   className={cn(
-                    'px-5 py-2 rounded-full text-sm font-medium transition-all',
+                    'px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap',
                     selectedCity === null
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-background/80 text-muted-foreground hover:text-foreground border border-border'
@@ -98,7 +98,7 @@ const Gallery = () => {
                     type="button"
                     onClick={() => setSelectedCity(city)}
                     className={cn(
-                      'px-5 py-2 rounded-full text-sm font-medium transition-all',
+                      'px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap',
                       selectedCity === city
                         ? 'bg-primary text-primary-foreground'
                         : 'bg-background/80 text-muted-foreground hover:text-foreground border border-border'

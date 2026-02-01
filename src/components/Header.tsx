@@ -72,7 +72,7 @@ export const Header = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <div className="sm:hidden h-14 w-14 rounded-full bg-white shadow-md ring-1 ring-border/40 flex items-center justify-center overflow-hidden">
+              <div className="sm:hidden h-14 w-14 rounded-full bg-white shadow-md ring-1 ring-border/40 flex items-center justify-center overflow-hidden -translate-y-1">
                 <img
                   src={`${baseUrl}brand/Short Logo.png`}
                   alt={site.name}
