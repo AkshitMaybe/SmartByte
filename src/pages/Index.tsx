@@ -1,16 +1,29 @@
-import { lazy, Suspense, useEffect, useRef } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { ArrowRight, Award, Users, MapPin, Calendar, GraduationCap, Sparkles, CheckCircle } from 'lucide-react';
+import {
+  ArrowRight,
+  Award,
+  Users,
+  MapPin,
+  Calendar,
+  GraduationCap,
+  Sparkles,
+  CheckCircle,
+  MessageSquareText,
+  PhoneCall,
+  Star,
+} from 'lucide-react';
 import { Container, Section, SectionHeading } from '@/components/Container';
 import { Button } from '@/components/ui/button';
 import { StatCard } from '@/components/StatCard';
-import { useMouseParallax } from '@/hooks/useParallax';
 import { MobileDefer } from '@/components/MobileDefer';
 import { useIsMobileLike } from '@/hooks/useIsMobileLike';
 import { pageTransition, staggerChildren, staggerItem } from '@/lib/motion';
 import { site } from '@/data/site';
+import { courses } from '@/data/courses';
+import { HeroTechDecor } from '@/components/HeroTechDecor';
 
 const HomeTestimonials = lazy(() => import('@/sections/HomeTestimonials'));
 const WhatsAppForm = lazy(() =>
@@ -19,9 +32,38 @@ const WhatsAppForm = lazy(() =>
 const HomeCoursesGrid = lazy(() => import('@/sections/HomeCoursesGrid'));
 
 const Index = () => {
-  const heroRef = useRef<HTMLDivElement>(null);
-  const parallax = useMouseParallax(heroRef, 0.02);
   const isMobileLike = useIsMobileLike();
+  const baseUrl = import.meta.env.BASE_URL;
+
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${site.seo.domain}/#organization`,
+        name: site.name,
+        url: site.seo.domain,
+        logo: `${site.seo.domain}${baseUrl}brand/shortlogo.png`,
+        email: "contact@smartbytecomputers.com",
+        telephone: "+91 7304006693",
+        sameAs: [site.social.instagram],
+      },
+      {
+        "@type": "ItemList",
+        name: "Popular Computer Courses",
+        itemListElement: courses.map((course, index) => ({
+          "@type": "Course",
+          position: index + 1,
+          name: course.name,
+          description: course.description,
+          provider: {
+            "@type": "Organization",
+            name: site.name,
+          },
+        })),
+      },
+    ],
+  };
 
   useEffect(() => {
     if (!isMobileLike) {
@@ -36,10 +78,19 @@ const Index = () => {
       <Helmet>
         <title>{site.seo.defaultTitle}</title>
         <meta name="description" content={site.seo.defaultDescription} />
+        <meta property="og:title" content={site.seo.defaultTitle} />
+        <meta property="og:description" content={site.seo.defaultDescription} />
+        <meta property="og:image" content={`${baseUrl}brand/shortlogo.png`} />
+        <meta property="og:url" content={site.seo.domain} />
+        <meta name="twitter:title" content={site.seo.defaultTitle} />
+        <meta name="twitter:description" content={site.seo.defaultDescription} />
+        <meta name="twitter:image" content={`${baseUrl}brand/shortlogo.png`} />
+        <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
       </Helmet>
 
       {/* Hero Section */}
-      <section ref={heroRef} className="relative min-h-[90vh] flex items-center overflow-hidden">
+      <section className="relative min-h-[90vh] flex items-center overflow-hidden">
+        <HeroTechDecor />
         <Container className="relative z-10 py-20">
           <motion.div
             className="max-w-4xl mx-auto text-center"
@@ -58,11 +109,11 @@ const Index = () => {
             {/* Headline */}
             <motion.h1
               variants={staggerItem}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-heading font-bold leading-tight mb-6"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-heading font-bold leading-[1.3] mb-6"
             >
-              <span className="text-foreground">Chalo</span>{' '}
-              <span className="text-gradient-primary">Digitally Smart</span>{' '}
-              <span className="text-foreground">Bane</span>
+              <span className="text-foreground">Smart Logon Ki </span>
+              <span className="text-gradient-primary">Smart Choice</span>
+              <span className="text-foreground"> Only SmartByte</span>
             </motion.h1>
 
             {/* Subheadline */}
@@ -99,25 +150,48 @@ const Index = () => {
               <StatCard icon={GraduationCap} value="5+" label="Popular Courses" index={3} />
             </motion.div>
           </motion.div>
-
-          {/* Floating elements with parallax */}
-          <motion.div
-            className="absolute top-20 left-10 hidden lg:block pointer-events-none -z-10"
-            style={{ x: parallax.x * 2, y: parallax.y * 2 }}
-          >
-            <div className="w-16 h-16 rounded-2xl bg-primary/20 backdrop-blur float" />
-          </motion.div>
-          <motion.div
-            className="absolute bottom-32 right-20 hidden lg:block pointer-events-none -z-10"
-            style={{ x: parallax.x * -1.5, y: parallax.y * -1.5 }}
-          >
-            <div className="w-20 h-20 rounded-full bg-accent/20 backdrop-blur float-delayed" />
-          </motion.div>
         </Container>
       </section>
 
+      {/* Quick Enquiry Strip */}
+      <Section className="py-8">
+        <Container>
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="glass-card grid gap-4 rounded-3xl border-2 border-primary/55 bg-card/80 p-5 md:grid-cols-[1.4fr_auto_auto_auto] md:items-center"
+          >
+            <div>
+              <p className="text-sm uppercase tracking-[0.16em] text-primary">Fast Support</p>
+              <h2 className="mt-1 text-xl font-heading font-bold text-foreground">Get Course Guidance in 15 Minutes</h2>
+              <p className="mt-1 text-sm text-muted-foreground">Call, WhatsApp, or visit your nearest SmartByte branch.</p>
+            </div>
+            <a
+              href={`tel:${site.whatsappHO}`}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-primary/45 bg-black/70 px-5 text-sm font-semibold text-foreground transition-colors hover:border-primary/80"
+            >
+              <PhoneCall className="h-4 w-4" />
+              Call Now
+            </a>
+            <a
+              href={`https://wa.me/${site.whatsappHO.replace(/[^0-9]/g, "")}?text=${encodeURIComponent("Hi SmartByte, please guide me for the right course.")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-primary/45 bg-black/70 px-5 text-sm font-semibold text-foreground transition-colors hover:border-primary/80"
+            >
+              <MessageSquareText className="h-4 w-4" />
+              WhatsApp
+            </a>
+            <Button asChild className="h-11 rounded-full bg-gradient-to-r from-primary to-primary-glow">
+              <Link to="/locations">Nearest Branch</Link>
+            </Button>
+          </motion.div>
+        </Container>
+      </Section>
+
       {/* Featured Courses */}
-      <Section>
+      <Section className="tech-surface-subtle rounded-3xl">
         <Container>
           <SectionHeading
             title="Our Popular Courses"
@@ -142,7 +216,7 @@ const Index = () => {
       </Section>
 
       {/* Why SmartByte */}
-      <Section className="bg-card/30">
+      <Section className="tech-surface-subtle rounded-3xl">
         <Container>
           <SectionHeading
             title="Why Choose SmartByte?"
@@ -180,6 +254,42 @@ const Index = () => {
         </Container>
       </Section>
 
+      {/* Credibility Strip */}
+      <Section className="py-12">
+        <Container>
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="grid gap-4 md:grid-cols-3"
+          >
+            {[
+              {
+                title: "Rated by Learners",
+                text: "Thousands of students have trained with SmartByte since 2005.",
+                icon: Star,
+              },
+              {
+                title: "Job-Oriented Syllabus",
+                text: "Courses are practical-first with lab-based learning and guided projects.",
+                icon: GraduationCap,
+              },
+              {
+                title: "Nearby Branch Access",
+                text: "Study at your nearest branch with flexible morning-to-evening batches.",
+                icon: MapPin,
+              },
+            ].map((item) => (
+              <div key={item.title} className="glass-card rounded-2xl border-2 border-primary/40 bg-card/75 p-5">
+                <item.icon className="mb-3 h-5 w-5 text-primary" />
+                <h3 className="text-lg font-heading font-semibold">{item.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{item.text}</p>
+              </div>
+            ))}
+          </motion.div>
+        </Container>
+      </Section>
+
       {/* Testimonials Marquee */}
       <MobileDefer minHeight={420}>
         <Suspense fallback={<div className="py-16 md:py-24" />}>
@@ -188,7 +298,7 @@ const Index = () => {
       </MobileDefer>
 
       {/* CTA Section */}
-      <Section className="bg-gradient-to-br from-primary/10 via-background to-accent/10">
+      <Section className="rounded-3xl bg-gradient-to-br from-primary/10 via-background to-accent/10">
         <Container size="small">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <motion.div

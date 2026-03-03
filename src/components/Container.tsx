@@ -64,7 +64,7 @@ export const SectionHeading = ({
       transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
     >
       <h2 className={cn(
-        'text-3xl md:text-4xl lg:text-5xl font-bold font-heading tracking-tight',
+        'text-3xl md:text-4xl lg:text-5xl font-bold font-heading',
         gradient ? 'text-gradient-primary' : 'text-foreground'
       )}>
         {title}

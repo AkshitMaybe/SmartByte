@@ -6,11 +6,13 @@ import { Container, Section } from '@/components/Container';
 import { Marquee } from '@/components/Marquee';
 import { Button } from '@/components/ui/button';
 import { MobileDefer } from '@/components/MobileDefer';
-import { useIsMobileLike } from '@/hooks/useIsMobileLike';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { pageTransition } from '@/lib/motion';
 import { getBranchBySlug } from '@/data/branches';
+import { getBranchPhotos } from '@/data/branchPhotos';
 import { site } from '@/data/site';
+import { PhotoLightbox } from '@/components/PhotoLightbox';
+import { OptimizedImage } from '@/components/OptimizedImage';
 
 const WhatsAppForm = lazy(() =>
   import('@/components/WhatsAppForm').then((module) => ({ default: module.WhatsAppForm }))
@@ -18,7 +20,7 @@ const WhatsAppForm = lazy(() =>
 
 const BranchDetail = () => {
   const { slug } = useParams();
-  const isMobileLike = useIsMobileLike();
+  const [activePhotoIndex, setActivePhotoIndex] = useState<number | null>(null);
   const branch = getBranchBySlug(slug || '');
 
   if (!branch || branch.isComingSoon) {
@@ -31,11 +33,7 @@ const BranchDetail = () => {
     window.open(`https://wa.me/${number.replace(/[^0-9]/g, '')}?text=${message}`, '_blank');
   };
 
-  const photoPlaceholders = Array.from({ length: 6 }, (_, index) => ({
-    src: "/placeholder.svg",
-    alt: `Branch photo placeholder ${index + 1}`,
-    label: `Branch Photo ${index + 1}`,
-  }));
+  const photos = getBranchPhotos(branch.slug, branch.displayName, 0);
 
   return (
     <motion.div {...pageTransition}>
@@ -89,30 +87,66 @@ const BranchDetail = () => {
 
               <div className="mt-10">
                 <h2 className="text-lg font-heading font-semibold mb-4">Branch Photos</h2>
-                <MobileDefer minHeight={220}>
-                  <Marquee className="py-2" pauseOnHover>
-                    {photoPlaceholders.map((photo) => (
-                      <div
-                        key={photo.alt}
-                        className="relative h-40 w-64 shrink-0 overflow-hidden rounded-2xl border border-card-border bg-card/60 shadow-md"
-                      >
-                        <img
-                          src={photo.src}
-                          alt={photo.alt}
-                          className="h-full w-full object-cover opacity-75"
-                          loading={isMobileLike ? 'lazy' : 'eager'}
-                          decoding="async"
-                          fetchPriority={isMobileLike ? 'low' : 'auto'}
-                          sizes="(max-width: 640px) 80vw, (max-width: 1024px) 60vw, 320px"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-br from-background/10 via-transparent to-background/40" />
-                        <span className="absolute bottom-3 left-3 text-xs text-muted-foreground">
-                          {photo.label}
-                        </span>
-                      </div>
-                    ))}
-                  </Marquee>
-                </MobileDefer>
+                {photos.length > 1 && (
+                  <MobileDefer minHeight={220}>
+                    <Marquee
+                      className="py-2"
+                      pauseOnHover
+                      durationSeconds={Math.max(74, Math.round(photos.length * 16))}
+                    >
+                      {photos.map((photo, index) => (
+                        <button
+                          type="button"
+                          onClick={() => setActivePhotoIndex(index)}
+                          aria-label={`Open ${photo.alt}`}
+                          key={`${photo.src}-${index}`}
+                          className="relative h-40 w-64 shrink-0 overflow-hidden rounded-2xl border-2 border-primary/65 bg-card/60 shadow-md cursor-zoom-in outline-none transition-colors hover:border-primary/85 focus-visible:ring-2 focus-visible:ring-primary"
+                        >
+                          <OptimizedImage
+                            photo={photo}
+                            className="h-full w-full object-cover opacity-80"
+                            loading="lazy"
+                            decoding="async"
+                            fetchPriority="low"
+                            sizes="(max-width: 640px) 80vw, (max-width: 1024px) 60vw, 320px"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-br from-background/10 via-transparent to-background/40" />
+                        </button>
+                      ))}
+                    </Marquee>
+                  </MobileDefer>
+                )}
+
+                {photos.length === 1 && (
+                  <div className="py-2">
+                    <button
+                      type="button"
+                      onClick={() => setActivePhotoIndex(0)}
+                      aria-label={`Open ${photos[0].alt}`}
+                      className="relative h-40 w-64 overflow-hidden rounded-2xl border-2 border-primary/55 bg-card/60 shadow-md cursor-zoom-in outline-none transition-colors hover:border-primary/80 focus-visible:ring-2 focus-visible:ring-primary"
+                    >
+                      <OptimizedImage
+                        photo={photos[0]}
+                        className="h-full w-full object-cover opacity-80"
+                        loading="lazy"
+                        decoding="async"
+                        fetchPriority="low"
+                        sizes="(max-width: 640px) 80vw, (max-width: 1024px) 60vw, 320px"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-br from-background/10 via-transparent to-background/40" />
+                    </button>
+                  </div>
+                )}
+
+                {photos.length === 0 && (
+                  <p className="text-sm text-muted-foreground py-2">Photos coming soon!</p>
+                )}
+
+                <PhotoLightbox
+                  photos={photos}
+                  activeIndex={activePhotoIndex}
+                  onActiveIndexChange={setActivePhotoIndex}
+                />
               </div>
             </motion.div>
 

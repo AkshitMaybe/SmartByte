@@ -1,8 +1,12 @@
 import { motion } from 'framer-motion';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { usePerformanceProfile } from '@/hooks/usePerformanceProfile';
 
 export const AnimatedBackground = () => {
   const reducedMotion = useReducedMotion();
+  const { lowPerformance, ultraLowPerformance } = usePerformanceProfile();
+  const shouldReduceEffects = reducedMotion || lowPerformance;
+  const shouldDisableFloatingOrbs = shouldReduceEffects || ultraLowPerformance;
 
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
@@ -11,12 +15,26 @@ export const AnimatedBackground = () => {
       
       {/* Animated mesh gradient */}
       <div
-        className={`absolute inset-0 ${reducedMotion ? '' : 'animated-bg'} opacity-60`}
-        style={reducedMotion ? { background: 'var(--gradient-mesh)' } : undefined}
+        className={`absolute inset-0 ${shouldReduceEffects ? '' : 'animated-bg'} opacity-60`}
+        style={shouldReduceEffects ? { background: 'var(--gradient-mesh)' } : undefined}
       />
+
+      {/* Tech grid overlay */}
+      {!ultraLowPerformance && (
+        <div
+          className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage:
+              'linear-gradient(hsl(221 83% 53% / 0.12) 1px, transparent 1px), linear-gradient(90deg, hsl(221 83% 53% / 0.1) 1px, transparent 1px)',
+            backgroundSize: '64px 64px',
+            maskImage: 'radial-gradient(circle at center, black 24%, transparent 78%)',
+            WebkitMaskImage: 'radial-gradient(circle at center, black 24%, transparent 78%)',
+          }}
+        />
+      )}
       
       {/* Floating orbs */}
-      {!reducedMotion && (
+      {!shouldDisableFloatingOrbs && (
         <>
           <motion.div
             className="absolute w-[600px] h-[600px] rounded-full blur-3xl opacity-20"
@@ -77,7 +95,7 @@ export const AnimatedBackground = () => {
       )}
       
       {/* Noise overlay */}
-      {!reducedMotion && (
+      {!shouldReduceEffects && (
         <div 
           className="absolute inset-0 opacity-[0.015]"
           style={{

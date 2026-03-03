@@ -1,6 +1,6 @@
 export const site = {
   name: "SmartByte Computer Education",
-  tagline: "Chalo Digitally Smart Bane",
+  tagline: "Smart Logon Ki Smart Choice Only SmartByte",
   description: "Govt. Authorized Training Center providing quality computer education since 2005. Learn CCC, Tally, Advanced Excel, Cybersecurity, Python and more.",
   
   // Trust metrics (must appear in multiple places)
@@ -14,24 +14,22 @@ export const site = {
   },
   
   // Head Office WhatsApp fallback
-  whatsappHO: "+919876543210", // Placeholder - update with real number
+  whatsappHO: "+917304006693",
   
   // SEO defaults
   seo: {
     domain: "https://smartbytecomputers.com",
-    defaultTitle: "SmartByte Computer Education - Chalo Digitally Smart Bane",
+    defaultTitle: "SmartByte Computer Education - Smart Logon Ki Smart Choice Only SmartByte",
     defaultDescription: "Learn computer skills from Maharashtra's trusted training center. CCC, Tally, Advanced Excel, Cybersecurity, Python courses. 45,000+ students trained since 2005.",
     defaultImage: "/og-image.jpg",
   },
   
   // Default timings for all branches
-  defaultTimings: "7:00 AM – 9:30 PM",
+  defaultTimings: "7:00 AM - 9:30 PM",
   
   // Social links (placeholders)
   social: {
-    facebook: "https://facebook.com/smartbytecomputers",
-    instagram: "https://instagram.com/smartbytecomputers",
-    youtube: "https://youtube.com/smartbytecomputers",
+    instagram: "https://www.instagram.com/thisissmartbyte/",
   },
   
   // Locations covered
@@ -39,3 +37,4 @@ export const site = {
 } as const;
 
 export type Site = typeof site;
+

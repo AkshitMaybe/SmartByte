@@ -11,6 +11,8 @@ node_modules
 dist
 dist-ssr
 *.local
+public/optimized/*
+!public/optimized/.gitkeep
 
 # Editor directories and files
 .vscode/*

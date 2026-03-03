@@ -7,23 +7,44 @@ import { pageTransition } from '@/lib/motion';
 import { useIsMobileLike } from '@/hooks/useIsMobileLike';
 import { MobileDefer } from '@/components/MobileDefer';
 import { getBranchBySlug } from '@/data/branches';
+import { getBranchPhotos } from '@/data/branchPhotos';
+import { useEffect, useMemo, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { PhotoLightbox } from '@/components/PhotoLightbox';
+import { OptimizedImage } from '@/components/OptimizedImage';
 import { ArrowLeft } from 'lucide-react';
 
 const BranchGallery = () => {
   const { slug } = useParams();
+  const branchSlug = slug || '';
   const isMobileLike = useIsMobileLike();
-  const branch = getBranchBySlug(slug || '');
+  const [visibleCount, setVisibleCount] = useState(12);
+  const [activePhotoIndex, setActivePhotoIndex] = useState<number | null>(null);
+  const branch = getBranchBySlug(branchSlug);
+
+  const batchSize = isMobileLike ? 6 : 12;
+  const photos = useMemo(
+    () => (branch && !branch.isComingSoon ? getBranchPhotos(branch.slug, branch.displayName, 0) : []),
+    [branch]
+  );
+  const marqueePhotos = photos.slice(0, 6);
+  const shouldRenderMarquee = marqueePhotos.length > 1;
+  const visiblePhotos = photos.slice(0, visibleCount);
+
+  useEffect(() => {
+    setVisibleCount(batchSize);
+    setActivePhotoIndex(null);
+  }, [batchSize, branchSlug]);
+
+  useEffect(() => {
+    if (activePhotoIndex !== null && activePhotoIndex >= photos.length) {
+      setActivePhotoIndex(null);
+    }
+  }, [activePhotoIndex, photos.length]);
 
   if (!branch || branch.isComingSoon) {
     return <Navigate to="/gallery" replace />;
   }
-
-  const photos = Array.from({ length: 12 }, (_, index) => ({
-    id: `${branch.slug}-${index + 1}`,
-    src: "/placeholder.svg",
-    alt: `${branch.displayName} photo ${index + 1}`,
-    label: `Branch Photo ${index + 1}`,
-  }));
 
   return (
     <motion.div {...pageTransition}>
@@ -47,55 +68,73 @@ const BranchGallery = () => {
           />
         </Container>
 
-        <MobileDefer minHeight={260}>
-          <Marquee className="mb-12">
-            {photos.slice(0, 6).map((photo) => (
-              <div
-                key={photo.id}
-                className="relative h-44 w-72 shrink-0 overflow-hidden rounded-2xl border border-card-border bg-card/60 shadow-md"
-              >
-                <img
-                  src={photo.src}
-                  alt={photo.alt}
-                  className="h-full w-full object-cover opacity-75"
-                  loading={isMobileLike ? 'lazy' : 'eager'}
-                  decoding="async"
-                  fetchPriority={isMobileLike ? 'low' : 'auto'}
-                  sizes="(max-width: 640px) 80vw, (max-width: 1024px) 60vw, 320px"
-                />
-                <div className="absolute inset-0 bg-gradient-to-br from-background/10 via-transparent to-background/40" />
-              </div>
-            ))}
-          </Marquee>
-        </MobileDefer>
+        {shouldRenderMarquee && (
+          <MobileDefer minHeight={260}>
+            <Marquee className="mb-12" durationSeconds={Math.max(74, Math.round(marqueePhotos.length * 18))}>
+              {marqueePhotos.map((photo, index) => (
+                <div
+                  key={`${photo.src}-marquee-${index}`}
+                  className="relative h-44 w-72 shrink-0 overflow-hidden rounded-2xl border-2 border-primary/65 bg-card/60 shadow-md"
+                >
+                  <OptimizedImage
+                    photo={photo}
+                    className="h-full w-full object-cover opacity-80"
+                    loading="lazy"
+                    decoding="async"
+                    fetchPriority="low"
+                    sizes="(max-width: 640px) 80vw, (max-width: 1024px) 60vw, 320px"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-br from-background/10 via-transparent to-background/40" />
+                </div>
+              ))}
+            </Marquee>
+          </MobileDefer>
+        )}
 
         <Container>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {photos.map((photo, index) => (
-              <motion.div
-                key={photo.id}
-                className="relative aspect-video glass-card overflow-hidden"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: index * 0.03 }}
+          {photos.length === 0 ? (
+            <p className="text-center text-muted-foreground py-8">Photos coming soon!</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {visiblePhotos.map((photo, index) => (
+                <button
+                  type="button"
+                  onClick={() => setActivePhotoIndex(index)}
+                  aria-label={`Open ${photo.alt}`}
+                  key={`${photo.src}-grid-${index}`}
+                  className="relative aspect-video glass-card overflow-hidden border-2 border-primary/65 cursor-zoom-in outline-none transition-colors hover:border-primary/85 focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                  <OptimizedImage
+                    photo={photo}
+                    className="h-full w-full object-cover opacity-80"
+                    loading="lazy"
+                    decoding="async"
+                    fetchPriority="low"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-br from-background/10 via-transparent to-background/40" />
+                </button>
+              ))}
+            </div>
+          )}
+
+          {photos.length > visibleCount && (
+            <div className="mt-6 flex justify-center">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setVisibleCount((count) => count + batchSize)}
               >
-                <img
-                  src={photo.src}
-                  alt={photo.alt}
-                  className="h-full w-full object-cover opacity-75"
-                  loading={isMobileLike ? 'lazy' : 'eager'}
-                  decoding="async"
-                  fetchPriority={isMobileLike ? 'low' : 'auto'}
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                />
-                <div className="absolute inset-0 bg-gradient-to-br from-background/10 via-transparent to-background/40" />
-                <span className="absolute bottom-3 left-3 text-xs text-muted-foreground">
-                  {photo.label}
-                </span>
-              </motion.div>
-            ))}
-          </div>
+                Load More Photos
+              </Button>
+            </div>
+          )}
+
+          <PhotoLightbox
+            photos={photos}
+            activeIndex={activePhotoIndex}
+            onActiveIndexChange={setActivePhotoIndex}
+          />
         </Container>
       </Section>
     </motion.div>

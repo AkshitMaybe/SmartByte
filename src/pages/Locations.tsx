@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { MobileDefer } from '@/components/MobileDefer';
 import { pageTransition } from '@/lib/motion';
 import { branches, getCities, getCityCounts, getBranchesByCity } from '@/data/branches';
+import { site } from '@/data/site';
 import { lazy, Suspense } from 'react';
 
 const LocationsGrid = lazy(() => import('@/sections/LocationsGrid'));
@@ -15,6 +16,25 @@ const Locations = () => {
   const cityCounts = getCityCounts();
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const activeBranches = branches.filter(b => !b.isComingSoon);
+  const baseUrl = import.meta.env.BASE_URL;
+
+  const localBusinessSchema = {
+    "@context": "https://schema.org",
+    "@graph": activeBranches.map((branch) => ({
+      "@type": "LocalBusiness",
+      name: `${site.name} - ${branch.displayName}`,
+      image: `${site.seo.domain}${baseUrl}brand/shortlogo.png`,
+      telephone: branch.contactNumber,
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: branch.address,
+        addressRegion: "Maharashtra",
+        addressCountry: "IN",
+      },
+      areaServed: branch.cityGroup,
+      url: `${site.seo.domain}${baseUrl}branches/${branch.slug}`,
+    })),
+  };
 
   const displayedBranches = selectedCity 
     ? getBranchesByCity(selectedCity)
@@ -25,6 +45,7 @@ const Locations = () => {
       <Helmet>
         <title>Our Branches - SmartByte Computer Education</title>
         <meta name="description" content="Find SmartByte branches in Kalyan, Dombivli, Thane, Diva, Panvel, Badlapur, Titwala, Bhiwandi." />
+        <script type="application/ld+json">{JSON.stringify(localBusinessSchema)}</script>
       </Helmet>
 
       <Section>

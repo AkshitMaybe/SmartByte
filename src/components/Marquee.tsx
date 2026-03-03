@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { usePerformanceProfile } from '@/hooks/usePerformanceProfile';
 import { cn } from '@/lib/utils';
 
 interface MarqueeProps {
@@ -7,19 +8,23 @@ interface MarqueeProps {
   className?: string;
   reverse?: boolean;
   pauseOnHover?: boolean;
+  durationSeconds?: number;
 }
 
 export const Marquee = ({ 
   children, 
   className,
   reverse = false,
-  pauseOnHover = true 
+  pauseOnHover = true,
+  durationSeconds = 30,
 }: MarqueeProps) => {
   const reducedMotion = useReducedMotion();
+  const { lowPerformance } = usePerformanceProfile();
+  const shouldReduceAnimation = reducedMotion || lowPerformance;
 
-  if (reducedMotion) {
+  if (shouldReduceAnimation) {
     return (
-      <div className={cn('flex overflow-x-auto gap-6 py-4', className)}>
+      <div className={cn('flex overflow-x-auto gap-4 py-4 sm:gap-6', className)}>
         {children}
       </div>
     );
@@ -35,11 +40,12 @@ export const Marquee = ({
     >
       <div 
         className={cn(
-          'flex marquee-content',
+          'flex marquee-content gap-4 sm:gap-6',
           reverse ? 'marquee-reverse' : 'marquee'
         )}
         style={{ 
           animationPlayState: 'running',
+          animationDuration: `${durationSeconds}s`,
         }}
       >
         {children}

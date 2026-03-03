@@ -42,7 +42,7 @@ const CourseDetail = () => {
                 </span>
               </motion.div>
               
-              <motion.h1 variants={staggerItem} className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold mb-4">
+              <motion.h1 variants={staggerItem} className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold leading-[1.3] mb-4">
                 {course.name}
               </motion.h1>
               

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MapPin, Phone, Mail, Facebook, Instagram, Youtube, ArrowRight } from 'lucide-react';
+import { MapPin, Phone, Mail, Instagram, ArrowRight } from 'lucide-react';
 import { Container } from '@/components/Container';
 import { site } from '@/data/site';
 import { courses } from '@/data/courses';
@@ -35,17 +35,9 @@ export const Footer = () => {
               />
             </Link>
             <p className="text-muted-foreground mb-6 leading-relaxed">
-              {site.tagline}. Quality computer education since 2005.
+              {site.tagline}
             </p>
             <div className="flex items-center gap-3">
-              <a 
-                href={site.social.facebook}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-secondary hover:bg-primary/20 flex items-center justify-center transition-colors group"
-              >
-                <Facebook className="w-5 h-5 text-muted-foreground group-hover:text-primary" />
-              </a>
               <a 
                 href={site.social.instagram}
                 target="_blank"
@@ -53,14 +45,6 @@ export const Footer = () => {
                 className="w-10 h-10 rounded-full bg-secondary hover:bg-primary/20 flex items-center justify-center transition-colors group"
               >
                 <Instagram className="w-5 h-5 text-muted-foreground group-hover:text-primary" />
-              </a>
-              <a 
-                href={site.social.youtube}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-secondary hover:bg-primary/20 flex items-center justify-center transition-colors group"
-              >
-                <Youtube className="w-5 h-5 text-muted-foreground group-hover:text-primary" />
               </a>
             </div>
           </motion.div>
@@ -142,10 +126,10 @@ export const Footer = () => {
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-primary flex-shrink-0" />
                 <a 
-                  href="mailto:info@smartbytecomputers.com"
+                  href="mailto:contact@smartbytecomputers.com"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
-                  info@smartbytecomputers.com
+                  contact@smartbytecomputers.com
                 </a>
               </li>
             </ul>
@@ -160,18 +144,19 @@ export const Footer = () => {
         </motion.div>
 
         {/* Bottom bar */}
-        <motion.div 
-          className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4"
+        <motion.div
+          className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 sm:flex-row"
           {...fadeUp}
         >
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} SmartByte Computer Education. All rights reserved.
+            Copyright {new Date().getFullYear()} SmartByte Computer Education. All rights reserved.
           </p>
           <p className="text-sm text-muted-foreground">
-            {site.trust.since} • {site.trust.students} {site.trust.studentsLabel}
+            {site.trust.since} | {site.trust.students} {site.trust.studentsLabel}
           </p>
         </motion.div>
       </Container>
     </footer>
   );
 };
+

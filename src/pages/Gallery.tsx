@@ -1,201 +1,449 @@
-import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useMemo, useState } from 'react';
+import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
 import { Container, Section, SectionHeading } from '@/components/Container';
-import { cardHover, pageTransition } from '@/lib/motion';
-import { cn } from '@/lib/utils';
-import { useIsMobileLike } from '@/hooks/useIsMobileLike';
-import { branches, getBranchesByCity, getCities, getCityCounts } from '@/data/branches';
+import { pageTransition } from '@/lib/motion';
+import { FilterPills, type FilterPillOption } from '@/components/gallery/FilterPills';
+import { GalleryTabs } from '@/components/gallery/GalleryTabs';
+import { LightboxModal } from '@/components/gallery/LightboxModal';
+import { MediaGrid } from '@/components/gallery/MediaGrid';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  type EventType,
+  type GalleryItem,
+  type GalleryCity,
+  type GallerySection,
+  branchScopedEventTypes,
+  eventTypeConfigs,
+  galleryBranches,
+  galleryCities,
+  galleryItems,
+} from '@/data/galleryItems';
 
-const tabs = ['Branches', 'Classes', 'Events', 'Certificates'];
+const galleryTabs: Array<{ value: GallerySection; label: string }> = [
+  { value: 'branches', label: 'Branches' },
+  { value: 'events', label: 'Events' },
+  { value: 'seminars', label: 'Seminars' },
+  { value: 'certificates', label: 'Certificates' },
+];
+
+const allValue = 'all';
+const allEventTypeValue = 'all';
+const commonBranchValue = 'common';
+
+const getUniqueCityBranches = (city: GalleryCity): string[] =>
+  Array.from(
+    new Set(
+      galleryBranches
+        .filter((branch) => branch.city === city)
+        .map((branch) => branch.branch)
+    )
+  );
+
+const countByCity = (items: GalleryItem[]): Record<GalleryCity, number> =>
+  galleryCities.reduce<Record<GalleryCity, number>>((accumulator, city) => {
+    accumulator[city] = items.filter((item) => item.city === city).length;
+    return accumulator;
+  }, {} as Record<GalleryCity, number>);
+
+const isBranchScopedEventItem = (item: GalleryItem): boolean =>
+  item.eventType ? branchScopedEventTypes.includes(item.eventType) : false;
+
+const isCommonEventItem = (item: GalleryItem): boolean => Boolean(item.isCommonEvent);
 
 const Gallery = () => {
-  const [activeTab, setActiveTab] = useState('Branches');
-  const [selectedCity, setSelectedCity] = useState<string | null>(null);
-  const isMobileLike = useIsMobileLike();
-  const cities = getCities();
-  const cityCounts = getCityCounts();
-  const branchOptions = selectedCity
-    ? getBranchesByCity(selectedCity)
-    : branches.filter(branch => !branch.isComingSoon);
+  const [activeTab, setActiveTab] = useState<GallerySection>('branches');
+  const [selectedCity, setSelectedCity] = useState<'all' | GalleryCity>(allValue);
+  const [selectedBranch, setSelectedBranch] = useState<string>(allValue);
+  const [selectedEventType, setSelectedEventType] = useState<'all' | EventType>(allEventTypeValue);
+  const [selectedBranchTabBranch, setSelectedBranchTabBranch] = useState<string>(allValue);
+  const [activeItemIndex, setActiveItemIndex] = useState<number | null>(null);
+
+  const tabItems = useMemo(
+    () => galleryItems.filter((item) => item.section === activeTab),
+    [activeTab]
+  );
+
+  const branchTabItems = useMemo(
+    () => galleryItems.filter((item) => item.section === 'branches'),
+    []
+  );
+
+  const showCityFilters = activeTab === 'events' || activeTab === 'seminars';
+  const isAllEventsContext = activeTab === 'events' && selectedCity === allValue && selectedBranch === allValue;
+
+  const cityFilterSourceItems = useMemo(() => {
+    if (activeTab === 'seminars') {
+      return tabItems;
+    }
+    if (activeTab === 'events') {
+      return tabItems.filter((item) => isBranchScopedEventItem(item) && !isCommonEventItem(item));
+    }
+    return [];
+  }, [activeTab, tabItems]);
+
+  const cityCounts = useMemo(
+    () => countByCity(cityFilterSourceItems),
+    [cityFilterSourceItems]
+  );
+
+  const cityPillOptions = useMemo<FilterPillOption[]>(() => {
+    if (!showCityFilters) {
+      return [];
+    }
+
+    const perCityOptions = galleryCities
+      .map((city) => ({
+        value: city,
+        label: city,
+        count: cityCounts[city] ?? 0,
+      }))
+      .filter((option) => (option.count ?? 0) > 0);
+
+    const allOptions: FilterPillOption[] =
+      cityFilterSourceItems.length > 0
+        ? [{ value: allValue, label: 'All', count: cityFilterSourceItems.length }]
+        : [];
+
+    return [...allOptions, ...perCityOptions];
+  }, [cityCounts, cityFilterSourceItems.length, showCityFilters]);
+
+  const cityScopedItems = useMemo(() => {
+    if (selectedCity === allValue) {
+      return tabItems;
+    }
+
+    if (activeTab === 'events') {
+      return tabItems.filter((item) => item.city === selectedCity || isCommonEventItem(item));
+    }
+
+    return tabItems.filter((item) => item.city === selectedCity);
+  }, [activeTab, selectedCity, tabItems]);
+
+  const branchPillOptions = useMemo<FilterPillOption[]>(() => {
+    if (!showCityFilters || selectedCity === allValue) {
+      return [];
+    }
+
+    if (activeTab === 'events') {
+      const cityBranchItems = tabItems.filter(
+        (item) => isBranchScopedEventItem(item) && !isCommonEventItem(item) && item.city === selectedCity
+      );
+      const commonCount = tabItems.filter(
+        (item) => isBranchScopedEventItem(item) && isCommonEventItem(item)
+      ).length;
+
+      const branchCounts = cityBranchItems.reduce<Record<string, number>>((accumulator, item) => {
+        accumulator[item.branch] = (accumulator[item.branch] ?? 0) + 1;
+        return accumulator;
+      }, {});
+
+      const perBranchOptions = getUniqueCityBranches(selectedCity)
+        .map((branchName) => ({
+          value: branchName,
+          label: branchName,
+          count: branchCounts[branchName] ?? 0,
+        }))
+        .filter((option) => (option.count ?? 0) > 0);
+
+      const options: FilterPillOption[] = [
+        ...(commonCount > 0 ? [{ value: commonBranchValue, label: 'Common', count: commonCount }] : []),
+        ...perBranchOptions,
+      ];
+
+      if (options.length <= 1) {
+        return options;
+      }
+
+      return [
+        { value: allValue, label: `All ${selectedCity}`, count: cityBranchItems.length + commonCount },
+        ...options,
+      ];
+    }
+
+    const cityItems = tabItems.filter((item) => item.city === selectedCity);
+    const branchCounts = cityItems.reduce<Record<string, number>>((accumulator, item) => {
+      accumulator[item.branch] = (accumulator[item.branch] ?? 0) + 1;
+      return accumulator;
+    }, {});
+
+    const perBranchOptions = getUniqueCityBranches(selectedCity)
+      .map((branchName) => ({
+        value: branchName,
+        label: branchName,
+        count: branchCounts[branchName] ?? 0,
+      }))
+      .filter((option) => (option.count ?? 0) > 0);
+
+    if (perBranchOptions.length <= 1) {
+      return perBranchOptions;
+    }
+
+    return [
+      { value: allValue, label: `All ${selectedCity}`, count: cityItems.length },
+      ...perBranchOptions,
+    ];
+  }, [activeTab, selectedCity, showCityFilters, tabItems]);
+
+  const eventBaseItems = useMemo(() => {
+    if (activeTab !== 'events') {
+      return [];
+    }
+
+    let items = cityScopedItems;
+    const hasLocationContext = selectedCity !== allValue || selectedBranch !== allValue;
+
+    if (hasLocationContext) {
+      items = items.filter(isBranchScopedEventItem);
+    }
+
+    if (selectedCity !== allValue && selectedBranch !== allValue) {
+      if (selectedBranch === commonBranchValue) {
+        items = items.filter(isCommonEventItem);
+      } else {
+        items = items.filter((item) => !isCommonEventItem(item) && item.branch === selectedBranch);
+      }
+    }
+
+    return items;
+  }, [activeTab, cityScopedItems, selectedBranch, selectedCity]);
+
+  const eventTypeSelectOptions = useMemo<Array<{ value: 'all' | EventType; label: string; count: number }>>(() => {
+    if (activeTab !== 'events') {
+      return [];
+    }
+
+    const allowedConfigs = isAllEventsContext
+      ? eventTypeConfigs
+      : eventTypeConfigs.filter((config) => config.branchScoped);
+
+    const typeOptions = allowedConfigs.map((config) => ({
+      value: config.value,
+      label: config.label,
+      count: eventBaseItems.filter((item) => item.eventType === config.value).length,
+    }));
+
+    if (isAllEventsContext) {
+      return [{ value: allEventTypeValue, label: 'All', count: eventBaseItems.length }, ...typeOptions];
+    }
+
+    const nonZeroOptions = typeOptions.filter((option) => option.count > 0);
+    return [{ value: allEventTypeValue, label: 'All', count: eventBaseItems.length }, ...nonZeroOptions];
+  }, [activeTab, eventBaseItems, isAllEventsContext]);
+
+  const branchSelectOptions = useMemo(() => {
+    const counts = branchTabItems.reduce<Record<string, number>>((accumulator, item) => {
+      accumulator[item.branch] = (accumulator[item.branch] ?? 0) + 1;
+      return accumulator;
+    }, {});
+
+    return [
+      { value: allValue, label: 'All Branches', count: branchTabItems.length },
+      ...galleryBranches.map((branch) => ({
+        value: branch.branch,
+        label: branch.displayName,
+        count: counts[branch.branch] ?? 0,
+      })),
+    ];
+  }, [branchTabItems]);
+
+  const filteredItems = useMemo(() => {
+    if (activeTab === 'branches') {
+      if (selectedBranchTabBranch === allValue) {
+        return tabItems;
+      }
+      return tabItems.filter((item) => item.branch === selectedBranchTabBranch);
+    }
+
+    if (activeTab === 'events') {
+      if (selectedEventType === allEventTypeValue) {
+        return eventBaseItems;
+      }
+      return eventBaseItems.filter((item) => item.eventType === selectedEventType);
+    }
+
+    if (activeTab === 'certificates') {
+      return tabItems;
+    }
+
+    const seminarItems = selectedCity === allValue
+      ? tabItems
+      : tabItems.filter((item) => item.city === selectedCity);
+
+    if (selectedCity === allValue || selectedBranch === allValue) {
+      return seminarItems;
+    }
+
+    return seminarItems.filter((item) => item.branch === selectedBranch);
+  }, [
+    activeTab,
+    eventBaseItems,
+    selectedBranch,
+    selectedBranchTabBranch,
+    selectedCity,
+    selectedEventType,
+    tabItems,
+  ]);
 
   useEffect(() => {
-    if (activeTab === 'Branches') return;
-    setSelectedCity(null);
+    setSelectedCity(allValue);
+    setSelectedBranch(allValue);
+    setSelectedEventType(allEventTypeValue);
+    setSelectedBranchTabBranch(allValue);
+    setActiveItemIndex(null);
   }, [activeTab]);
 
-  // Placeholder images
-  const images = Array.from({ length: 6 }, (_, i) => ({
-    id: i + 1,
-    category: tabs[i % 4],
-    placeholder: true,
-  }));
+  useEffect(() => {
+    if (!showCityFilters) {
+      return;
+    }
 
-  const filteredImages = images.filter(img => img.category === activeTab);
+    if (selectedCity === allValue) {
+      setSelectedBranch(allValue);
+      return;
+    }
+
+    const cityExists = cityPillOptions.some((option) => option.value === selectedCity);
+    if (!cityExists) {
+      setSelectedCity(allValue);
+      setSelectedBranch(allValue);
+    }
+  }, [cityPillOptions, selectedCity, showCityFilters]);
+
+  useEffect(() => {
+    if (!showCityFilters || selectedCity === allValue) {
+      return;
+    }
+
+    if (branchPillOptions.length === 1 && branchPillOptions[0].value !== allValue) {
+      setSelectedBranch(branchPillOptions[0].value);
+      return;
+    }
+
+    const selectedBranchStillExists = branchPillOptions.some((option) => option.value === selectedBranch);
+    if (!selectedBranchStillExists) {
+      setSelectedBranch(allValue);
+    }
+  }, [branchPillOptions, selectedBranch, selectedCity, showCityFilters]);
+
+  useEffect(() => {
+    if (activeTab !== 'events' || selectedEventType === allEventTypeValue) {
+      return;
+    }
+
+    const optionExists = eventTypeSelectOptions.some((option) => option.value === selectedEventType);
+    if (!optionExists) {
+      setSelectedEventType(allEventTypeValue);
+    }
+  }, [activeTab, eventTypeSelectOptions, selectedEventType]);
+
+  useEffect(() => {
+    if (activeItemIndex !== null && activeItemIndex >= filteredItems.length) {
+      setActiveItemIndex(null);
+    }
+  }, [activeItemIndex, filteredItems.length]);
+
+  const handleCityChange = (value: string) => {
+    const nextCity = value as 'all' | GalleryCity;
+    setSelectedCity(nextCity);
+    setSelectedBranch(allValue);
+  };
+
+  const gridAnimationKey = `${activeTab}-${selectedCity}-${selectedBranch}-${selectedEventType}-${selectedBranchTabBranch}`;
 
   return (
     <motion.div {...pageTransition}>
       <Helmet>
         <title>Gallery - SmartByte Computer Education</title>
-        <meta name="description" content="View photos of SmartByte branches, classes, events, and student achievements." />
+        <meta
+          name="description"
+          content="Explore SmartByte branch, event, seminar, and certificate media from all branches in one gallery."
+        />
       </Helmet>
 
       <Section>
         <Container>
-          <SectionHeading
-            title="Our Gallery"
-            subtitle="A glimpse into life at SmartByte"
-            gradient
-          />
+          <SectionHeading title="Our Gallery" subtitle="Browse branch, event, seminar, and certificate media in one place" gradient />
 
-          {/* Tabs / Branch Filters */}
-          <div className="mb-10 sm:mb-12 space-y-4 sm:space-y-5">
-            <motion.div
-              className="flex sm:justify-center gap-2 overflow-x-auto sm:overflow-visible -mx-4 px-4 sm:mx-0 sm:px-0 no-scrollbar"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              {tabs.map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => {
-                    setActiveTab(tab);
-                  }}
-                  className={cn(
-                    'px-5 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap',
-                    activeTab === tab
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-background/80 text-muted-foreground hover:text-foreground border border-border'
-                  )}
-                >
-                  {tab}
-                </button>
-              ))}
-            </motion.div>
+          <div className="mb-8 space-y-3">
+            <GalleryTabs tabs={galleryTabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
-            {activeTab === 'Branches' && (
-              <motion.div
-                className="flex sm:flex-wrap sm:justify-center gap-2 sm:gap-3 overflow-x-auto sm:overflow-visible -mx-4 px-4 sm:mx-0 sm:px-0 no-scrollbar"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-              >
-                <button
-                  type="button"
-                  onClick={() => setSelectedCity(null)}
-                  className={cn(
-                    'px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap',
-                    selectedCity === null
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-background/80 text-muted-foreground hover:text-foreground border border-border'
-                  )}
+            {activeTab === 'branches' && (
+              <div className="mx-auto w-full max-w-sm">
+                <p className="mb-1 text-xs font-medium text-muted-foreground">Choose Branch</p>
+                <Select value={selectedBranchTabBranch} onValueChange={setSelectedBranchTabBranch}>
+                  <SelectTrigger className="h-10 rounded-full border-2 border-primary/55 bg-black/70">
+                    <SelectValue placeholder="All Branches" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {branchSelectOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label} {`(${option.count})`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {showCityFilters && cityPillOptions.length > 0 && (
+              <FilterPills
+                options={cityPillOptions}
+                selectedValue={selectedCity}
+                onChange={handleCityChange}
+              />
+            )}
+
+            {showCityFilters && selectedCity !== allValue && branchPillOptions.length > 0 && (
+              <FilterPills
+                options={branchPillOptions}
+                selectedValue={selectedBranch}
+                onChange={setSelectedBranch}
+              />
+            )}
+
+            {activeTab === 'events' && (
+              <div className="mx-auto w-full max-w-xs sm:max-w-sm">
+                <p className="mb-1 text-xs font-medium text-muted-foreground">Event Type</p>
+                <Select
+                  value={selectedEventType}
+                  onValueChange={(value) => setSelectedEventType(value as 'all' | EventType)}
                 >
-                  All ({branches.filter(branch => !branch.isComingSoon).length})
-                </button>
-                {cities.map((city) => (
-                  <button
-                    key={city}
-                    type="button"
-                    onClick={() => setSelectedCity(city)}
-                    className={cn(
-                      'px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap',
-                      selectedCity === city
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-background/80 text-muted-foreground hover:text-foreground border border-border'
-                    )}
-                  >
-                    {city} ({cityCounts[city]})
-                  </button>
-                ))}
-              </motion.div>
+                  <SelectTrigger className="h-10 rounded-full border-2 border-primary/55 bg-black/70">
+                    <SelectValue placeholder="All" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {eventTypeSelectOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label} {`(${option.count})`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {activeTab === 'events' && (
+              <p className="text-center text-xs text-muted-foreground/80">
+                Select City {'->'} (optional) select Branch {'->'} choose Event Type
+              </p>
             )}
           </div>
 
-          {/* Gallery Grid */}
-          {activeTab === 'Branches' ? (
-            <div className="space-y-8">
-              <div className="text-center text-sm text-muted-foreground">
-                Select a branch to view photos
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {branchOptions.map((branch, index) => {
-                  return (
-                    <Link
-                      key={branch.slug}
-                      to={`/gallery/branches/${branch.slug}`}
-                      className="block"
-                    >
-                      <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.45, delay: index * 0.05 }}
-                        variants={cardHover}
-                        whileHover="hover"
-                        whileTap="tap"
-                        className={cn(
-                          "group text-left rounded-2xl border border-card-border bg-card/60 p-4 transition-all",
-                          "hover:border-primary/50 hover:bg-primary/5"
-                        )}
-                      >
-                        <div className="relative h-40 sm:h-48 md:h-56 lg:h-60 overflow-hidden rounded-xl border border-card-border bg-card/40">
-                          <img
-                            src="/placeholder.svg"
-                            alt={`${branch.displayName} thumbnail`}
-                            className="h-full w-full object-cover opacity-70"
-                            loading={isMobileLike ? 'lazy' : 'eager'}
-                            decoding="async"
-                            fetchPriority={isMobileLike ? 'low' : 'auto'}
-                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                          />
-                        </div>
-                        <div className="mt-4 text-center px-2">
-                          <span className="font-heading font-bold text-xl sm:text-2xl md:text-3xl text-gradient-primary leading-tight">
-                            {branch.displayName}
-                          </span>
-                        </div>
-                      </motion.div>
-                    </Link>
-                  );
-                })}
-              </div>
+          <motion.div
+            key={gridAnimationKey}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <MediaGrid items={filteredItems} onOpenItem={setActiveItemIndex} />
+          </motion.div>
 
-              <div className="text-center text-muted-foreground py-10">
-                Choose a branch to see its photos.
-              </div>
-            </div>
-          ) : (
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTab}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="grid grid-cols-2 md:grid-cols-3 gap-4"
-              >
-                {filteredImages.map((img, index) => (
-                  <motion.div
-                    key={img.id}
-                    className="aspect-video glass-card overflow-hidden flex items-center justify-center"
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <span className="text-muted-foreground text-sm">
-                      {activeTab} Photo {index + 1}
-                    </span>
-                  </motion.div>
-                ))}
-              </motion.div>
-            </AnimatePresence>
-          )}
-
-          {filteredImages.length === 0 && (
-            <p className="text-center text-muted-foreground py-12">
-              Photos coming soon!
-            </p>
-          )}
+          <LightboxModal
+            items={filteredItems}
+            activeIndex={activeItemIndex}
+            onActiveIndexChange={setActiveItemIndex}
+          />
         </Container>
       </Section>
     </motion.div>

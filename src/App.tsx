@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { lazy, Suspense, useEffect, useLayoutEffect } from "react";
 import { ThemeProvider } from "next-themes";
 import { AnimatePresence, MotionConfig } from "framer-motion";
@@ -12,6 +12,7 @@ import { Footer } from "@/components/Footer";
 import { AnimatedBackground } from "@/components/AnimatedBackground";
 import { ScrollProgressBar } from "@/components/ScrollProgressBar";
 import { BackToTop } from "@/components/BackToTop";
+import { MobileStickyCta } from "@/components/MobileStickyCta";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useIsMobileLike } from "@/hooks/useIsMobileLike";
 
@@ -22,7 +23,6 @@ const About = lazy(() => import("./pages/About"));
 const Locations = lazy(() => import("./pages/Locations"));
 const BranchDetail = lazy(() => import("./pages/BranchDetail"));
 const Gallery = lazy(() => import("./pages/Gallery"));
-const BranchGallery = lazy(() => import("./pages/BranchGallery"));
 const Testimonials = lazy(() => import("./pages/Testimonials"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
@@ -63,7 +63,7 @@ const AnimatedRoutes = () => {
           <Route path="/locations" element={<Locations />} />
           <Route path="/branches/:slug" element={<BranchDetail />} />
           <Route path="/gallery" element={<Gallery />} />
-          <Route path="/gallery/branches/:slug" element={<BranchGallery />} />
+          <Route path="/gallery/branches/:slug" element={<Navigate to="/gallery" replace />} />
           <Route path="/testimonials" element={<Testimonials />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
@@ -84,7 +84,7 @@ const AnimatedRoutes = () => {
           <Route path="/locations" element={<Locations />} />
           <Route path="/branches/:slug" element={<BranchDetail />} />
           <Route path="/gallery" element={<Gallery />} />
-          <Route path="/gallery/branches/:slug" element={<BranchGallery />} />
+          <Route path="/gallery/branches/:slug" element={<Navigate to="/gallery" replace />} />
           <Route path="/testimonials" element={<Testimonials />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
@@ -123,11 +123,12 @@ const App = () => {
                 <AnimatedBackground />
                 <ScrollProgressBar />
                 <Header />
-                <main className="min-h-screen pt-20">
+                <main className="min-h-screen pb-24 pt-20 md:pb-0">
                   <AnimatedRoutes />
                 </main>
                 <Footer />
                 <BackToTop />
+                <MobileStickyCta />
               </BrowserRouter>
             </TooltipProvider>
           </QueryClientProvider>
