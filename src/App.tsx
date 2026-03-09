@@ -98,6 +98,7 @@ const AnimatedRoutes = () => {
 const App = () => {
   const reducedMotion = useReducedMotion();
   const isMobileLike = useIsMobileLike();
+  const routerBase = import.meta.env.BASE_URL.replace(/\/+$/, "");
 
   useEffect(() => {
     if (isMobileLike) return;
@@ -117,8 +118,8 @@ const App = () => {
               <Toaster />
               <Sonner />
 
-              {/* IMPORTANT: basename fixes GitHub Pages subpath (/SmartByte/) */}
-              <BrowserRouter basename={import.meta.env.BASE_URL}>
+              {/* IMPORTANT: basename fixes GitHub Pages subpath (/SmartByte) */}
+              <BrowserRouter basename={routerBase}>
                 <ScrollToTop />
                 <AnimatedBackground />
                 <ScrollProgressBar />
