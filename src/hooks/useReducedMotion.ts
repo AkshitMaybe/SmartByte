@@ -6,7 +6,36 @@ type LegacyMediaQueryList = MediaQueryList & {
 };
 
 const getDeviceSignals = () => {
-  if (typeof window === 'undefined') {
+  try {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+      return {
+        prefersReducedMotion: false,
+        isMobileLike: false,
+        saveData: false,
+        lowMemory: false,
+      };
+    }
+
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const widthQuery = window.matchMedia('(max-width: 768px)');
+    const pointerQuery = window.matchMedia('(pointer: coarse)');
+    const hoverQuery = window.matchMedia('(hover: none)');
+
+    const isMobileLike = widthQuery.matches && (pointerQuery.matches || hoverQuery.matches);
+
+    const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+    const saveData = connection?.saveData === true;
+
+    const deviceMemory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
+    const lowMemory = typeof deviceMemory === 'number' && deviceMemory <= 4;
+
+    return {
+      prefersReducedMotion: motionQuery.matches,
+      isMobileLike,
+      saveData,
+      lowMemory,
+    };
+  } catch {
     return {
       prefersReducedMotion: false,
       isMobileLike: false,
@@ -14,26 +43,6 @@ const getDeviceSignals = () => {
       lowMemory: false,
     };
   }
-
-  const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const widthQuery = window.matchMedia('(max-width: 768px)');
-  const pointerQuery = window.matchMedia('(pointer: coarse)');
-  const hoverQuery = window.matchMedia('(hover: none)');
-
-  const isMobileLike = widthQuery.matches && (pointerQuery.matches || hoverQuery.matches);
-
-  const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
-  const saveData = connection?.saveData === true;
-
-  const deviceMemory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
-  const lowMemory = typeof deviceMemory === 'number' && deviceMemory <= 4;
-
-  return {
-    prefersReducedMotion: motionQuery.matches,
-    isMobileLike,
-    saveData,
-    lowMemory,
-  };
 };
 
 export const useReducedMotion = (): boolean => {
@@ -43,7 +52,7 @@ export const useReducedMotion = (): boolean => {
   });
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
 
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     const widthQuery = window.matchMedia('(max-width: 768px)');

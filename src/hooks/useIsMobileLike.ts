@@ -6,20 +6,26 @@ type LegacyMediaQueryList = MediaQueryList & {
 };
 
 const getIsMobileLike = () => {
-  if (typeof window === 'undefined') return false;
+  try {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+      return false;
+    }
 
-  const widthQuery = window.matchMedia('(max-width: 768px)');
-  const pointerQuery = window.matchMedia('(pointer: coarse)');
-  const hoverQuery = window.matchMedia('(hover: none)');
+    const widthQuery = window.matchMedia('(max-width: 768px)');
+    const pointerQuery = window.matchMedia('(pointer: coarse)');
+    const hoverQuery = window.matchMedia('(hover: none)');
 
-  return widthQuery.matches && (pointerQuery.matches || hoverQuery.matches);
+    return widthQuery.matches && (pointerQuery.matches || hoverQuery.matches);
+  } catch {
+    return false;
+  }
 };
 
 export const useIsMobileLike = (): boolean => {
   const [isMobileLike, setIsMobileLike] = useState(getIsMobileLike);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
 
     const widthQuery = window.matchMedia('(max-width: 768px)');
     const pointerQuery = window.matchMedia('(pointer: coarse)');
